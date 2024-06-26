@@ -107,6 +107,7 @@ public final class CheckRecipeResultRegistry {
     /** Concrete backfiller is out of concrete */
     public static final CheckRecipeResult BACKFILLER_NO_CONCRETE = SimpleCheckRecipeResult
         .ofFailure("backfiller_no_concrete");
+    public static final CheckRecipeResult NO_SEE_SKY = SimpleCheckRecipeResult.ofFailure("no_see_sky");
 
     /**
      * Cannot process recipe because the machine cannot handle required EUt.
