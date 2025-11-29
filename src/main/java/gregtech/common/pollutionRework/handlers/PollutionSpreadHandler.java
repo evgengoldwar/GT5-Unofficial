@@ -2,6 +2,7 @@ package gregtech.common.pollutionRework.handlers;
 
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
+
 import gregtech.api.util.GTUtility;
 import gregtech.common.pollutionRework.PollutionData;
 import gregtech.common.pollutionRework.PollutionStorage;
@@ -13,6 +14,9 @@ public class PollutionSpreadHandler {
         new ChunkCoordIntPair(0, 1),
         new ChunkCoordIntPair(0, -1)
     };
+    private static final int SPREAD_RATIO_NUMERATOR = 6;
+    private static final int SPREAD_RATIO_DENOMINATOR = 5;
+    private static final int SPREAD_DIVISOR = 20;
 
     public void handlePollutionSpread(World world, ChunkCoordIntPair sourcePos, int sourcePollution, PollutionStorage storage) {
         for (ChunkCoordIntPair offset : NEIGHBOR_OFFSETS) {
@@ -25,8 +29,8 @@ public class PollutionSpreadHandler {
         PollutionData neighborData = storage.get(world, neighborPos);
         int neighborPollution = neighborData.getAmount();
 
-        if (neighborPollution * 6 < sourcePollution * 5) {
-            int difference = (sourcePollution - neighborPollution) / 20;
+        if (neighborPollution * SPREAD_RATIO_NUMERATOR < sourcePollution * SPREAD_RATIO_DENOMINATOR) {
+            int difference = (sourcePollution - neighborPollution) / SPREAD_DIVISOR;
             neighborPollution = GTUtility.safeInt((long) neighborPollution + difference);
             storage.setPollution(world, neighborPos, neighborPollution);
         }

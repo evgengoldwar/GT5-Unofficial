@@ -67,10 +67,6 @@ public class PollutionStorage extends GTChunkAssociatedData<PollutionData> {
         return isCreated(world.provider.dimensionId, cord.chunkXPos, cord.chunkZPos);
     }
 
-    public PollutionData getChunkData(Chunk chunk) {
-        return get(chunk.worldObj, chunk.xPosition, chunk.zPosition);
-    }
-
     private Pollution getPollutionManager(World world) {
         return GTMod.proxy.dimensionWisePollutionRework.computeIfAbsent(world.provider.dimensionId, i -> new Pollution(world));
     }

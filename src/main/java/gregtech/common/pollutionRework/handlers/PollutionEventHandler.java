@@ -12,7 +12,7 @@ import gregtech.common.pollutionRework.Pollution;
 import gregtech.common.pollutionRework.PollutionStorage;
 
 public class PollutionEventHandler {
-    PollutionStorage STORAGE = Pollution.getSTORAGE();
+    private final PollutionStorage STORAGE = Pollution.getSTORAGE();
 
     @SubscribeEvent
     public void chunkWatch(ChunkWatchEvent.Watch event) {

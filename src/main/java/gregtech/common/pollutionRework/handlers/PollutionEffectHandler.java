@@ -17,6 +17,12 @@ import gregtech.api.hazards.HazardProtection;
 import gregtech.common.pollutionRework.PollutionBlockDamager;
 
 public class PollutionEffectHandler {
+    private static final int SMOG_DURATION_DIVISOR = 1000;
+    private static final int SMOG_AMPLIFIER_DIVISOR = 400000;
+    private static final int POISON_HUNGER_DIVISOR = 500000;
+    private static final int POISON_CONFUSION_DIVISOR = 2000;
+    private static final int POISON_POISON_DIVISOR = 4000;
+    private static final int VEGETATION_ATTEMPTS_DIVISOR = 25000;
 
     public void applyPollutionEffects(World world, ChunkCoordIntPair chunkPos, int pollution) {
         if (pollution > GTMod.proxy.mPollutionSmogLimit) {
@@ -60,8 +66,8 @@ public class PollutionEffectHandler {
     }
 
     private void applyNegativeEffects(EntityLivingBase entity, int pollution) {
-        int duration = Math.min(pollution / 1000, 1000);
-        int amplifier = pollution / 400000;
+        int duration = Math.min(pollution / SMOG_DURATION_DIVISOR, 1000);
+        int amplifier = pollution / SMOG_AMPLIFIER_DIVISOR;
 
         switch (XSTR_INSTANCE.nextInt(3)) {
             case 0:
@@ -79,22 +85,22 @@ public class PollutionEffectHandler {
     private void applyPoisonEffects(EntityLivingBase entity, int pollution) {
         switch (XSTR_INSTANCE.nextInt(4)) {
             case 0:
-                entity.addPotionEffect(new PotionEffect(Potion.hunger.id, pollution / 500000, 0));
+                entity.addPotionEffect(new PotionEffect(Potion.hunger.id, pollution / POISON_HUNGER_DIVISOR, 0));
                 break;
             case 1:
-                entity.addPotionEffect(new PotionEffect(Potion.confusion.id, Math.min(pollution / 2000, 1000), 1));
+                entity.addPotionEffect(new PotionEffect(Potion.confusion.id, Math.min(pollution / POISON_CONFUSION_DIVISOR, 1000), 1));
                 break;
             case 2:
-                entity.addPotionEffect(new PotionEffect(Potion.poison.id, Math.min(pollution / 4000, 1000), pollution / 500000));
+                entity.addPotionEffect(new PotionEffect(Potion.poison.id, Math.min(pollution / POISON_POISON_DIVISOR, 1000), pollution / POISON_HUNGER_DIVISOR));
                 break;
             case 3:
-                entity.addPotionEffect(new PotionEffect(Potion.blindness.id, Math.min(pollution / 2000, 1000), 1));
+                entity.addPotionEffect(new PotionEffect(Potion.blindness.id, Math.min(pollution / POISON_CONFUSION_DIVISOR, 1000), 1));
                 break;
         }
     }
 
     private void damageVegetation(World world, ChunkCoordIntPair chunkPos, int pollution) {
-        int attempts = Math.min(20, pollution / 25000);
+        int attempts = Math.min(20, pollution / VEGETATION_ATTEMPTS_DIVISOR);
         boolean sourRain = pollution > GTMod.proxy.mPollutionSourRainLimit;
 
         for (int i = 0; i < attempts; i++) {
