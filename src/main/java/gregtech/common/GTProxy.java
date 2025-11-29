@@ -689,6 +689,8 @@ public class GTProxy implements IFuelHandler {
 
     private final ConcurrentMap<UUID, GTClientPreference> mClientPrefernces = new ConcurrentHashMap<>();
     public final Int2ObjectOpenHashMap<Pollution> dimensionWisePollution = new Int2ObjectOpenHashMap<>(16);
+    public final Int2ObjectOpenHashMap<gregtech.common.pollutionRework.Pollution> dimensionWisePollutionRework = new Int2ObjectOpenHashMap<>(
+        16);
     /** A fast lookup for players. */
     private Map<UUID, EntityPlayerMP> PLAYERS_BY_UUID;
     private Map<String, UUID> UUID_BY_NAME;
@@ -2042,6 +2044,7 @@ public class GTProxy implements IFuelHandler {
         }
 
         Pollution.onWorldTick(aEvent);
+        gregtech.common.pollutionRework.Pollution.onWorldTick(aEvent);
     }
 
     @SubscribeEvent

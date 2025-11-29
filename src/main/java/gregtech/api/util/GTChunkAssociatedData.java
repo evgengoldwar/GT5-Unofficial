@@ -232,7 +232,7 @@ public abstract class GTChunkAssociatedData<T extends GTChunkAssociatedData.IDat
      * <p>
      * Be aware of the memory consumption though.
      */
-    protected void loadAll(World w) {
+    public void loadAll(World w) {
         if (GTValues.debugWorldData && masterMap.containsKey(w.provider.dimensionId)) GTLog.err.println(
             "Reloading ChunkAssociatedData " + mId + " for world " + w.provider.dimensionId + " discards old data!");
         if (!getSaveDirectory(w).isDirectory())

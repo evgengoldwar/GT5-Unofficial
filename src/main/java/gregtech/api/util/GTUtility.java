@@ -2575,6 +2575,18 @@ public class GTUtility {
                 EnumChatFormatting.GREEN + GTUtility.trans("204", "No Pollution in Chunk! HAYO!")
                     + EnumChatFormatting.RESET);
         }
+
+        if (gregtech.common.pollutionRework.Pollution.hasPollution(currentChunk)) {
+            tList.add(
+                GTUtility.trans("202", "Pollution in Chunk: ") + EnumChatFormatting.RED
+                    + formatNumbers(gregtech.common.pollutionRework.Pollution.getPollution(currentChunk))
+                    + EnumChatFormatting.RESET
+                    + GTUtility.trans("203", " gibbl"));
+        } else {
+            tList.add(
+                EnumChatFormatting.GREEN + GTUtility.trans("204", "No Pollution in Chunk! HAYO!")
+                    + EnumChatFormatting.RESET);
+        }
     }
 
     private static void addUndergroundFluidInfo(EntityPlayer aPlayer, ArrayList<String> tList, Chunk currentChunk) {

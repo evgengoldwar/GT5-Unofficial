@@ -111,6 +111,7 @@ public class MTEDebugPollutor extends MTETieredMachineBlock implements IAddUIWid
         if (aBaseMetaTileEntity.isServerSide()) {
             if (pollution > 0) {
                 Pollution.addPollution(aBaseMetaTileEntity, pollution);
+                gregtech.common.pollutionRework.Pollution.addPollution(aBaseMetaTileEntity, pollution);
             }
         } else if (aBaseMetaTileEntity.isClientSide() && aBaseMetaTileEntity.isActive()) {
             for (final ForgeDirection side : ForgeDirection.VALID_DIRECTIONS) {
