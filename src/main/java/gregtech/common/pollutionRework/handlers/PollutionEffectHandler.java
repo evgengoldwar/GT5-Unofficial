@@ -66,10 +66,13 @@ public class PollutionEffectHandler {
         switch (XSTR_INSTANCE.nextInt(3)) {
             case 0:
                 entity.addPotionEffect(new PotionEffect(Potion.digSlowdown.id, duration, amplifier));
+                break;
             case 1:
                 entity.addPotionEffect(new PotionEffect(Potion.weakness.id, duration, amplifier));
+                break;
             case 2:
                 entity.addPotionEffect(new PotionEffect(Potion.moveSlowdown.id, duration, amplifier));
+                break;
         }
     }
 
@@ -77,13 +80,16 @@ public class PollutionEffectHandler {
         switch (XSTR_INSTANCE.nextInt(4)) {
             case 0:
                 entity.addPotionEffect(new PotionEffect(Potion.hunger.id, pollution / 500000, 0));
+                break;
             case 1:
                 entity.addPotionEffect(new PotionEffect(Potion.confusion.id, Math.min(pollution / 2000, 1000), 1));
+                break;
             case 2:
-                entity.addPotionEffect(
-                    new PotionEffect(Potion.poison.id, Math.min(pollution / 4000, 1000), pollution / 500000));
+                entity.addPotionEffect(new PotionEffect(Potion.poison.id, Math.min(pollution / 4000, 1000), pollution / 500000));
+                break;
             case 3:
                 entity.addPotionEffect(new PotionEffect(Potion.blindness.id, Math.min(pollution / 2000, 1000), 1));
+                break;
         }
     }
 

@@ -6,6 +6,11 @@ import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 
 public class PollutionBlockDamager {
+    private static final Block[] HARVESTABLE_PLANTS = {
+        Blocks.reeds, Blocks.vine, Blocks.waterlily, Blocks.wheat, Blocks.cactus,
+        Blocks.melon_block, Blocks.melon_stem, Blocks.red_flower, Blocks.yellow_flower,
+        Blocks.carrots, Blocks.potatoes, Blocks.pumpkin, Blocks.pumpkin_stem, Blocks.cocoa
+    };
 
     public static void damageBlock(World world, int x, int y, int z, boolean sourRain) {
         if (world.isRemote) return;
@@ -47,20 +52,10 @@ public class PollutionBlockDamager {
     }
 
     private static boolean isHarvestablePlant(Block block) {
-        return block == Blocks.reeds || block == Blocks.vine
-            || block == Blocks.waterlily
-            || block == Blocks.wheat
-            || block == Blocks.cactus
-            || block == Blocks.melon_block
-            || block == Blocks.melon_stem
-            || block == Blocks.red_flower
-            || block == Blocks.yellow_flower
-            || block == Blocks.carrots
-            || block == Blocks.potatoes
-            || block == Blocks.pumpkin
-            || block == Blocks.pumpkin_stem
-            || block == Blocks.cocoa
-            || block.getMaterial() == Material.cactus;
+        for (Block plant : HARVESTABLE_PLANTS) {
+            if (block == plant) return true;
+        }
+        return block.getMaterial() == Material.cactus;
     }
 
     private static void harvestAndReplace(World world, int x, int y, int z, Block block, int meta) {
@@ -69,10 +64,8 @@ public class PollutionBlockDamager {
     }
 
     private static void handleSourRainEffect(World world, int x, int y, int z, Block block, boolean sourRain) {
-        if (sourRain && world.isRaining()
-            && isWeatherAffectedBlock(block)
-            && world.getBlock(x, y + 1, z) == Blocks.air
-            && world.canBlockSeeTheSky(x, y, z)) {
+        if (sourRain && world.isRaining() && isWeatherAffectedBlock(block)
+            && world.getBlock(x, y + 1, z) == Blocks.air && world.canBlockSeeTheSky(x, y, z)) {
 
             if (block == Blocks.cobblestone) {
                 world.setBlock(x, y, z, Blocks.gravel);

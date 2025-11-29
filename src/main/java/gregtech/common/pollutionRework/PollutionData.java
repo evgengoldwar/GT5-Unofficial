@@ -4,7 +4,6 @@ import gregtech.api.util.GTChunkAssociatedData;
 import gregtech.api.util.GTUtility;
 
 public class PollutionData implements GTChunkAssociatedData.IData {
-
     private int amount;
 
     public PollutionData() {
@@ -24,7 +23,7 @@ public class PollutionData implements GTChunkAssociatedData.IData {
     }
 
     public void changeAmount(int delta) {
-        this.amount = Math.max(GTUtility.safeInt(amount + (long) delta, 0), 0);
+        this.amount = Math.max(GTUtility.safeInt(amount + (long) delta), 0);
     }
 
     @Override

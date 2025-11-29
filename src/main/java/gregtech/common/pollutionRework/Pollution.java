@@ -27,7 +27,6 @@ import gregtech.common.pollutionRework.handlers.PollutionSpreadHandler;
 
 @ParametersAreNonnullByDefault
 public class Pollution {
-
     private static final PollutionStorage STORAGE = new PollutionStorage();
     private static final PollutionEffectHandler EFFECT_HANDLER = new PollutionEffectHandler();
     private static final PollutionSpreadHandler SPREAD_HANDLER = new PollutionSpreadHandler();
@@ -41,6 +40,8 @@ public class Pollution {
 
     private static final short CYCLE_LENGTH = 1200;
     private static final int POLLUTION_PACKET_MIN_VALUE = 1000;
+    private static final float NATURAL_DECAY_RATE = 0.9945f;
+    private static final int SPREAD_THRESHOLD = 400000;
 
     public Pollution(World world) {
         this.world = world;
@@ -69,8 +70,7 @@ public class Pollution {
     private void tickPollutionInWorld(int tickId) {
         initializeCycleIfNeeded(tickId);
 
-        for (int chunksProcessed = 0; chunksProcessed < operationsPerTick
-            && !pollutionList.isEmpty(); chunksProcessed++) {
+        for (int chunksProcessed = 0; chunksProcessed < operationsPerTick && !pollutionList.isEmpty(); chunksProcessed++) {
             ChunkCoordIntPair chunkPos = pollutionList.remove(pollutionList.size() - 1);
             processChunkPollution(chunkPos);
         }
@@ -88,9 +88,9 @@ public class Pollution {
         PollutionData data = STORAGE.get(world, chunkPos);
         int pollution = data.getAmount();
 
-        pollution = (int) (0.9945f * pollution);
+        pollution = (int) (NATURAL_DECAY_RATE * pollution);
 
-        if (pollution > 400000) {
+        if (pollution > SPREAD_THRESHOLD) {
             SPREAD_HANDLER.handlePollutionSpread(world, chunkPos, pollution, STORAGE);
             EFFECT_HANDLER.applyPollutionEffects(world, chunkPos, pollution);
         }
@@ -100,12 +100,7 @@ public class Pollution {
     }
 
     private void setChunkPollution(ChunkCoordIntPair coord, int pollution) {
-        STORAGE.mutatePollution(
-            world,
-            coord.chunkXPos,
-            coord.chunkZPos,
-            data -> data.setAmount(pollution),
-            pollutedChunks);
+        STORAGE.mutatePollution(world, coord.chunkXPos, coord.chunkZPos, data -> data.setAmount(pollution), pollutedChunks);
     }
 
     private void sendPollutionUpdateIfNeeded(ChunkCoordIntPair chunkPos, int pollution) {
@@ -148,8 +143,7 @@ public class Pollution {
         if (world.isRemote) {
             return GTMod.clientProxy().mPollutionRenderer.getKnownPollution(chunkX << 4, chunkZ << 4);
         }
-        return STORAGE.get(world, chunkX, chunkZ)
-            .getAmount();
+        return STORAGE.get(world, chunkX, chunkZ).getAmount();
     }
 
     public static PollutionStorage getSTORAGE() {
@@ -162,8 +156,7 @@ public class Pollution {
 
     public static boolean hasPollution(Chunk chunk) {
         return GTMod.proxy.mPollution && STORAGE.isCreated(chunk.worldObj, chunk.getChunkCoordIntPair())
-            && STORAGE.get(chunk)
-                .getAmount() > 0;
+            && STORAGE.get(chunk).getAmount() > 0;
     }
 
     public Set<ChunkCoordIntPair> getPollutedChunks() {

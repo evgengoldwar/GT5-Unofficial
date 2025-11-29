@@ -12,7 +12,6 @@ import gregtech.common.pollutionRework.Pollution;
 import gregtech.common.pollutionRework.PollutionStorage;
 
 public class PollutionEventHandler {
-
     PollutionStorage STORAGE = Pollution.getSTORAGE();
 
     @SubscribeEvent
@@ -20,8 +19,7 @@ public class PollutionEventHandler {
         if (!GTMod.proxy.mPollution) return;
         World world = event.player.worldObj;
         if (STORAGE.isCreated(world, event.chunk)) {
-            int pollution = STORAGE.get(world, event.chunk)
-                .getAmount();
+            int pollution = STORAGE.get(world, event.chunk).getAmount();
             if (PollutionNetworkHandler.shouldSendUpdate(pollution))
                 GTValues.NW.sendToPlayer(new GTPacketPollution(event.chunk, pollution), event.player);
         }
