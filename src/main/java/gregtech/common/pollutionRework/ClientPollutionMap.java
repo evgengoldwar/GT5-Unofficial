@@ -59,17 +59,13 @@ public class ClientPollutionMap {
     public int getInterpolatedPollution(double worldX, double worldZ) {
         if (needsRebuild || chunkPollutionData == null) return 0;
 
-        // Получаем координаты блока
-        int blockX = MathHelper.floor_double(worldX);
-        int blockZ = MathHelper.floor_double(worldZ);
-
         // Получаем координаты чанка
-        int chunkX = blockX >> 4;
-        int chunkZ = blockZ >> 4;
+        int chunkX = MathHelper.floor_double(worldX) >> 4;
+        int chunkZ = MathHelper.floor_double(worldZ) >> 4;
 
         // Получаем позицию внутри чанка (0-15)
-        int localX = blockX & 15;
-        int localZ = blockZ & 15;
+        int localX = MathHelper.floor_double(worldX) & 15;
+        int localZ = MathHelper.floor_double(worldZ) & 15;
 
         // Вычисляем относительные координаты в матрице
         int matrixX = chunkX - centerChunkX + RADIUS;
@@ -86,17 +82,18 @@ public class ClientPollutionMap {
         int pollution01 = chunkPollutionData[matrixX][matrixZ + 1] & 0xFFFF;
         int pollution11 = chunkPollutionData[matrixX + 1][matrixZ + 1] & 0xFFFF;
 
-        // Билинейная интерполяция (как в старой системе)
-        int xi = 15 - localX;
-        int zi = 15 - localZ;
+        // Билинейная интерполяция
+        float dx = localX / 16.0f;
+        float dz = localZ / 16.0f;
 
-        int interpolated = pollution00 * xi * zi +
-            pollution10 * localX * zi +
-            pollution01 * xi * localZ +
-            pollution11 * localX * localZ;
+        float interpolated =
+            pollution00 * (1 - dx) * (1 - dz) +
+                pollution10 * dx * (1 - dz) +
+                pollution01 * (1 - dx) * dz +
+                pollution11 * dx * dz;
 
         // Конвертируем обратно в полный масштаб загрязнения
-        return interpolated * POLLUTION_DIVISOR;
+        return (int)(interpolated * POLLUTION_DIVISOR);
     }
 
     private void shiftCenter(int newChunkX, int newChunkZ) {
