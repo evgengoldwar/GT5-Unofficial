@@ -1,5 +1,9 @@
 package gregtech.common.pollutionRework;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.init.Blocks;
@@ -7,23 +11,45 @@ import net.minecraft.world.World;
 
 public class PollutionBlockDamager {
 
-    private static final Block[] HARVESTABLE_PLANTS = { Blocks.reeds, Blocks.vine, Blocks.waterlily, Blocks.wheat,
-        Blocks.cactus, Blocks.melon_block, Blocks.melon_stem, Blocks.red_flower, Blocks.yellow_flower, Blocks.carrots,
-        Blocks.potatoes, Blocks.pumpkin, Blocks.pumpkin_stem, Blocks.cocoa };
+    private static final Set<Block> HARVESTABLE_PLANTS = Stream
+        .of(
+            Blocks.reeds,
+            Blocks.vine,
+            Blocks.waterlily,
+            Blocks.wheat,
+            Blocks.cactus,
+            Blocks.melon_block,
+            Blocks.melon_stem,
+            Blocks.red_flower,
+            Blocks.yellow_flower,
+            Blocks.carrots,
+            Blocks.potatoes,
+            Blocks.pumpkin,
+            Blocks.pumpkin_stem,
+            Blocks.cocoa)
+        .collect(Collectors.toSet());
+
+    private static final Set<Block> IMMUNE_BLOCKS = Stream.of(Blocks.air, Blocks.stone, Blocks.sand, Blocks.deadbush)
+        .collect(Collectors.toSet());
+
+    private static final Set<Block> LEAF_BLOCKS = Stream.of(Blocks.leaves, Blocks.leaves2)
+        .collect(Collectors.toSet());
+
+    private static final Set<Block> WEATHER_AFFECTED_BLOCKS = Stream.of(Blocks.gravel, Blocks.cobblestone)
+        .collect(Collectors.toSet());
 
     public static void damageBlock(World world, int x, int y, int z, boolean sourRain) {
         if (world.isRemote) return;
 
         Block block = world.getBlock(x, y, z);
-        int meta = world.getBlockMetadata(x, y, z);
 
         if (isImmuneBlock(block)) return;
 
-        handleBlockDamage(world, x, y, z, block, meta, sourRain);
+        handleBlockDamage(world, x, y, z, block, world.getBlockMetadata(x, y, z), sourRain);
     }
 
     private static boolean isImmuneBlock(Block block) {
-        return block == Blocks.air || block == Blocks.stone || block == Blocks.sand || block == Blocks.deadbush;
+        return IMMUNE_BLOCKS.contains(block);
     }
 
     private static void handleBlockDamage(World world, int x, int y, int z, Block block, int meta, boolean sourRain) {
@@ -47,14 +73,11 @@ public class PollutionBlockDamager {
     }
 
     private static boolean isLeafBlock(Block block) {
-        return block == Blocks.leaves || block == Blocks.leaves2 || block.getMaterial() == Material.leaves;
+        return LEAF_BLOCKS.contains(block) || block.getMaterial() == Material.leaves;
     }
 
     private static boolean isHarvestablePlant(Block block) {
-        for (Block plant : HARVESTABLE_PLANTS) {
-            if (block == plant) return true;
-        }
-        return block.getMaterial() == Material.cactus;
+        return HARVESTABLE_PLANTS.contains(block) || block.getMaterial() == Material.cactus;
     }
 
     private static void harvestAndReplace(World world, int x, int y, int z, Block block, int meta) {
@@ -77,6 +100,6 @@ public class PollutionBlockDamager {
     }
 
     private static boolean isWeatherAffectedBlock(Block block) {
-        return block == Blocks.gravel || block == Blocks.cobblestone;
+        return WEATHER_AFFECTED_BLOCKS.contains(block);
     }
 }

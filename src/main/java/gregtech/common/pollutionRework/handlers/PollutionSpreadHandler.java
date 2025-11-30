@@ -1,5 +1,7 @@
 package gregtech.common.pollutionRework.handlers;
 
+import java.util.Arrays;
+
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 
@@ -11,18 +13,19 @@ public class PollutionSpreadHandler {
 
     private static final ChunkCoordIntPair[] NEIGHBOR_OFFSETS = { new ChunkCoordIntPair(1, 0),
         new ChunkCoordIntPair(-1, 0), new ChunkCoordIntPair(0, 1), new ChunkCoordIntPair(0, -1) };
+
     private static final int SPREAD_RATIO_NUMERATOR = 6;
     private static final int SPREAD_RATIO_DENOMINATOR = 5;
     private static final int SPREAD_DIVISOR = 20;
 
     public void handlePollutionSpread(World world, ChunkCoordIntPair sourcePos, int sourcePollution,
         PollutionStorage storage) {
-        for (ChunkCoordIntPair offset : NEIGHBOR_OFFSETS) {
-            ChunkCoordIntPair neighborPos = new ChunkCoordIntPair(
-                sourcePos.chunkXPos + offset.chunkXPos,
-                sourcePos.chunkZPos + offset.chunkZPos);
-            spreadPollutionToNeighbor(world, sourcePos, sourcePollution, neighborPos, storage);
-        }
+        Arrays.stream(NEIGHBOR_OFFSETS)
+            .map(
+                offset -> new ChunkCoordIntPair(
+                    sourcePos.chunkXPos + offset.chunkXPos,
+                    sourcePos.chunkZPos + offset.chunkZPos))
+            .forEach(neighborPos -> spreadPollutionToNeighbor(world, sourcePos, sourcePollution, neighborPos, storage));
     }
 
     private void spreadPollutionToNeighbor(World world, ChunkCoordIntPair sourcePos, int sourcePollution,
@@ -30,10 +33,18 @@ public class PollutionSpreadHandler {
         PollutionData neighborData = storage.get(world, neighborPos);
         int neighborPollution = neighborData.getAmount();
 
-        if (neighborPollution * SPREAD_RATIO_NUMERATOR < sourcePollution * SPREAD_RATIO_DENOMINATOR) {
-            int difference = (sourcePollution - neighborPollution) / SPREAD_DIVISOR;
-            neighborPollution = GTUtility.safeInt((long) neighborPollution + difference);
-            storage.setPollution(world, neighborPos, neighborPollution);
+        if (shouldSpreadPollution(sourcePollution, neighborPollution)) {
+            int difference = calculateSpreadDifference(sourcePollution, neighborPollution);
+            int newPollution = GTUtility.safeInt((long) neighborPollution + difference);
+            storage.setPollution(world, neighborPos, newPollution);
         }
+    }
+
+    private boolean shouldSpreadPollution(int sourcePollution, int neighborPollution) {
+        return neighborPollution * SPREAD_RATIO_NUMERATOR < sourcePollution * SPREAD_RATIO_DENOMINATOR;
+    }
+
+    private int calculateSpreadDifference(int sourcePollution, int neighborPollution) {
+        return (sourcePollution - neighborPollution) / SPREAD_DIVISOR;
     }
 }

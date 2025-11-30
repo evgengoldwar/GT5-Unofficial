@@ -53,27 +53,24 @@ public class Pollution {
     public static BlockMatcherRework blockVine;
 
     public static void onPostInitClient() {
-        standardBlocks = new BlockMatcherRework();
-        liquidBlocks = new BlockMatcherRework();
-        doublePlants = new BlockMatcherRework();
-        crossedSquares = new BlockMatcherRework();
-        blockVine = new BlockMatcherRework();
-        standardBlocks.updateClassList(PollutionConfig.renderStandardBlock);
-        liquidBlocks.updateClassList(PollutionConfig.renderBlockLiquid);
-        doublePlants.updateClassList(PollutionConfig.renderBlockDoublePlant);
-        crossedSquares.updateClassList(PollutionConfig.renderCrossedSquares);
-        blockVine.updateClassList(PollutionConfig.renderblockVine);
-        MinecraftForge.EVENT_BUS.register(standardBlocks);
-        MinecraftForge.EVENT_BUS.register(liquidBlocks);
-        MinecraftForge.EVENT_BUS.register(doublePlants);
-        MinecraftForge.EVENT_BUS.register(crossedSquares);
-        MinecraftForge.EVENT_BUS.register(blockVine);
+        standardBlocks = createAndRegisterBlockMatcher(PollutionConfig.renderStandardBlock);
+        liquidBlocks = createAndRegisterBlockMatcher(PollutionConfig.renderBlockLiquid);
+        doublePlants = createAndRegisterBlockMatcher(PollutionConfig.renderBlockDoublePlant);
+        crossedSquares = createAndRegisterBlockMatcher(PollutionConfig.renderCrossedSquares);
+        blockVine = createAndRegisterBlockMatcher(PollutionConfig.renderblockVine);
+
         MinecraftForge.EVENT_BUS.register(new PollutionTooltip());
+    }
+
+    private static BlockMatcherRework createAndRegisterBlockMatcher(String[] configArray) {
+        BlockMatcherRework matcher = new BlockMatcherRework();
+        matcher.updateClassList(configArray);
+        MinecraftForge.EVENT_BUS.register(matcher);
+        return matcher;
     }
 
     public Pollution(World world) {
         this.world = world;
-
         GTMod.proxy.dimensionWisePollutionRework.put(world.provider.dimensionId, this);
 
         if (EVENT_HANDLER == null) {
@@ -98,8 +95,8 @@ public class Pollution {
     private void tickPollutionInWorld(int tickId) {
         initializeCycleIfNeeded(tickId);
 
-        for (int chunksProcessed = 0; chunksProcessed < operationsPerTick
-            && !pollutionList.isEmpty(); chunksProcessed++) {
+        int chunksToProcess = Math.min(operationsPerTick, pollutionList.size());
+        for (int i = 0; i < chunksToProcess; i++) {
             ChunkCoordIntPair chunkPos = pollutionList.remove(pollutionList.size() - 1);
             processChunkPollution(chunkPos);
         }
@@ -115,9 +112,7 @@ public class Pollution {
 
     private void processChunkPollution(ChunkCoordIntPair chunkPos) {
         PollutionData data = STORAGE.get(world, chunkPos);
-        int pollution = data.getAmount();
-
-        pollution = (int) (NATURAL_DECAY_RATE * pollution);
+        int pollution = applyNaturalDecay(data.getAmount());
 
         if (pollution > SPREAD_THRESHOLD) {
             SPREAD_HANDLER.handlePollutionSpread(world, chunkPos, pollution, STORAGE);
@@ -126,6 +121,10 @@ public class Pollution {
 
         setChunkPollution(chunkPos, pollution);
         sendPollutionUpdateIfNeeded(chunkPos, pollution);
+    }
+
+    private int applyNaturalDecay(int pollution) {
+        return (int) (NATURAL_DECAY_RATE * pollution);
     }
 
     private void setChunkPollution(ChunkCoordIntPair coord, int pollution) {
@@ -148,28 +147,32 @@ public class Pollution {
         STORAGE.mutatePollution(world, chunkX, chunkZ, data -> data.changeAmount(pollution), null);
     }
 
-    public static void addPollution(IGregTechTileEntity te, int aPollution) {
-        addPollution((TileEntity) te, aPollution);
+    public static void addPollution(IGregTechTileEntity te, int pollution) {
+        addPollution((TileEntity) te, pollution);
     }
 
-    public static void addPollution(TileEntity te, int aPollution) {
-        if (aPollution == 0 || te.getWorldObj().isRemote) return;
+    public static void addPollution(TileEntity te, int pollution) {
+        if (pollution == 0 || te.getWorldObj().isRemote) return;
 
-        if (aPollution > 0) {
-            ICleanroomReceiver receiver = Capabilities.getCapability(te, ICleanroomReceiver.class);
-            if (receiver != null) {
-                ICleanroom cleanroom = receiver.getCleanroom();
-                if (cleanroom != null && cleanroom.isValidCleanroom()) {
-                    cleanroom.pollute();
-                }
-            }
+        if (pollution > 0) {
+            handleCleanroomPollution(te);
         }
 
-        addPollution(te.getWorldObj(), te.xCoord >> 4, te.zCoord >> 4, aPollution);
+        addPollution(te.getWorldObj(), te.xCoord >> 4, te.zCoord >> 4, pollution);
     }
 
-    public static void addPollution(Chunk ch, int aPollution) {
-        addPollution(ch.worldObj, ch.xPosition, ch.zPosition, aPollution);
+    private static void handleCleanroomPollution(TileEntity te) {
+        ICleanroomReceiver receiver = Capabilities.getCapability(te, ICleanroomReceiver.class);
+        if (receiver != null) {
+            ICleanroom cleanroom = receiver.getCleanroom();
+            if (cleanroom != null && cleanroom.isValidCleanroom()) {
+                cleanroom.pollute();
+            }
+        }
+    }
+
+    public static void addPollution(Chunk chunk, int pollution) {
+        addPollution(chunk.worldObj, chunk.xPosition, chunk.zPosition, pollution);
     }
 
     public static int getPollution(World world, int chunkX, int chunkZ) {
@@ -180,12 +183,12 @@ public class Pollution {
             .getAmount();
     }
 
-    public static PollutionStorage getSTORAGE() {
+    public static PollutionStorage getStorage() {
         return STORAGE;
     }
 
-    public static int getPollution(Chunk ch) {
-        return getPollution(ch.worldObj, ch.xPosition, ch.zPosition);
+    public static int getPollution(Chunk chunk) {
+        return getPollution(chunk.worldObj, chunk.xPosition, chunk.zPosition);
     }
 
     public static boolean hasPollution(Chunk chunk) {

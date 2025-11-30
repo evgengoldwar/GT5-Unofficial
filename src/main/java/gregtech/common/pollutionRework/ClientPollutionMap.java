@@ -1,5 +1,7 @@
 package gregtech.common.pollutionRework;
 
+import java.util.Arrays;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.util.MathHelper;
@@ -12,7 +14,8 @@ public class ClientPollutionMap {
     private static final int POLLUTION_DIVISOR = 225;
     private static final int MAX_POLLUTION = Short.MAX_VALUE;
 
-    private int centerChunkX, centerChunkZ;
+    private int centerChunkX;
+    private int centerChunkZ;
     private int dimension;
     private short[][] chunkPollutionData;
     private boolean needsRebuild = true;
@@ -80,13 +83,11 @@ public class ClientPollutionMap {
         float dx = localX / 16.0f;
         float dz = localZ / 16.0f;
 
-        float interpolated =
-            pollution00 * (1 - dx) * (1 - dz) +
-                pollution10 * dx * (1 - dz) +
-                pollution01 * (1 - dx) * dz +
-                pollution11 * dx * dz;
+        float interpolated = pollution00 * (1 - dx) * (1 - dz) + pollution10 * dx * (1 - dz)
+            + pollution01 * (1 - dx) * dz
+            + pollution11 * dx * dz;
 
-        return (int)(interpolated * POLLUTION_DIVISOR);
+        return (int) (interpolated * POLLUTION_DIVISOR);
     }
 
     private void shiftCenter(int newChunkX, int newChunkZ) {
@@ -108,15 +109,15 @@ public class ClientPollutionMap {
 
     private void shiftHorizontal(int deltaX, boolean[] emptyRows) {
         if (deltaX > 0) {
-            for (int x = 0; x < SIZE; x++) {
+            Arrays.setAll(chunkPollutionData, x -> {
                 int sourceX = x + deltaX;
                 if (sourceX < SIZE) {
-                    chunkPollutionData[x] = chunkPollutionData[sourceX].clone();
+                    return chunkPollutionData[sourceX].clone();
                 } else {
-                    chunkPollutionData[x] = new short[SIZE];
                     emptyRows[x] = true;
+                    return new short[SIZE];
                 }
-            }
+            });
         } else {
             for (int x = SIZE - 1; x >= 0; x--) {
                 int sourceX = x + deltaX;
@@ -132,21 +133,22 @@ public class ClientPollutionMap {
 
     private void shiftVertical(int deltaZ, boolean[] emptyRows) {
         if (deltaZ > 0) {
-            for (int x = 0; x < SIZE; x++) {
-                if (emptyRows[x]) continue;
-                for (int z = 0; z < SIZE; z++) {
-                    int sourceZ = z + deltaZ;
-                    chunkPollutionData[x][z] = (sourceZ < SIZE) ? chunkPollutionData[x][sourceZ] : 0;
-                }
-            }
+            Arrays.stream(chunkPollutionData)
+                .forEach(row -> {
+                    if (row != null) {
+                        System.arraycopy(row, deltaZ, row, 0, SIZE - deltaZ);
+                        Arrays.fill(row, SIZE - deltaZ, SIZE, (short) 0);
+                    }
+                });
         } else {
-            for (int x = 0; x < SIZE; x++) {
-                if (emptyRows[x]) continue;
-                for (int z = SIZE - 1; z >= 0; z--) {
-                    int sourceZ = z + deltaZ;
-                    chunkPollutionData[x][z] = (sourceZ >= 0) ? chunkPollutionData[x][sourceZ] : 0;
-                }
-            }
+            int absDeltaZ = -deltaZ;
+            Arrays.stream(chunkPollutionData)
+                .forEach(row -> {
+                    if (row != null) {
+                        System.arraycopy(row, 0, row, absDeltaZ, SIZE - absDeltaZ);
+                        Arrays.fill(row, 0, absDeltaZ, (short) 0);
+                    }
+                });
         }
     }
 }

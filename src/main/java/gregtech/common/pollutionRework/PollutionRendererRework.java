@@ -1,6 +1,7 @@
 package gregtech.common.pollutionRework;
 
-import net.minecraft.block.Block;
+import java.util.stream.IntStream;
+
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
@@ -27,18 +28,13 @@ import gregtech.common.pollution.EntityFXPollution;
 public class PollutionRendererRework {
 
     private static final boolean DEBUG = false;
-
-    // Pollution thresholds and effects
     private static final int PARTICLES_MAX_COUNT = 100;
     private static final int PARTICLES_POLLUTION_START = 400000;
     private static final int PARTICLES_POLLUTION_END = 3500000;
-    private static final int FOG_MAX_DISTANCE = 192 - 1;
-
+    private static final int FOG_MAX_DISTANCE = 191;
     private static final int FOG_START_POLLUTION = 400000;
     private static final int FOG_MAX_POLLUTION = 7000000;
     private static final double FOG_EXPONENTIAL_THRESHOLD = 0.02D;
-
-    // Color modifications for pollution
     private static final float[] FOG_COLOR = { 0.3f, 0.25f, 0.1f };
     private static final short[] GRASS_COLOR_MOD = { 230, 180, 40 };
     private static final short[] LEAVES_COLOR_MOD = { 160, 80, 15 };
@@ -101,7 +97,8 @@ public class PollutionRendererRework {
 
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onFogColorRender(EntityViewRenderEvent.FogColors event) {
-        if (!DEBUG && Minecraft.getMinecraft().thePlayer.capabilities.isCreativeMode) return;
+        EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
+        if (!DEBUG && player != null && player.capabilities.isCreativeMode) return;
         if (event.block.getMaterial() == Material.water || event.block.getMaterial() == Material.lava) return;
 
         float pollutionFactor = (float) Math.min(currentFogIntensity, 1.0);
@@ -114,8 +111,10 @@ public class PollutionRendererRework {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onFogRender(EntityViewRenderEvent.RenderFogEvent event) {
-        if ((!DEBUG && Minecraft.getMinecraft().thePlayer.capabilities.isCreativeMode)
-            || currentFogIntensity < FOG_EXPONENTIAL_THRESHOLD) return;
+        EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
+        boolean isCreative = player != null && player.capabilities.isCreativeMode;
+
+        if ((!DEBUG && isCreative) || currentFogIntensity < FOG_EXPONENTIAL_THRESHOLD) return;
 
         if (event.fogMode == 0) {
             double linearFactor = 1.0 - currentFogIntensity / FOG_EXPONENTIAL_THRESHOLD;
@@ -127,7 +126,8 @@ public class PollutionRendererRework {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onFogDensityRender(EntityViewRenderEvent.FogDensity event) {
-        if (!DEBUG && Minecraft.getMinecraft().thePlayer.capabilities.isCreativeMode) return;
+        EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
+        if (!DEBUG && player != null && player.capabilities.isCreativeMode) return;
 
         if (event.entity.isPotionActive(Potion.blindness) || currentFogIntensity < FOG_EXPONENTIAL_THRESHOLD
             || event.block.getMaterial() == Material.water
@@ -141,9 +141,7 @@ public class PollutionRendererRework {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onRenderTick(TickEvent.RenderTickEvent event) {
         Minecraft mc = Minecraft.getMinecraft();
-        if (mc == null) return;
-        EntityClientPlayerMP player = mc.thePlayer;
-        if (player == null) return;
+        if (mc == null || mc.thePlayer == null) return;
 
         if (event.phase == TickEvent.Phase.START) {
             updateFogIntensity(event.renderTickTime);
@@ -205,10 +203,10 @@ public class PollutionRendererRework {
         if (!GTMod.proxy.mRenderDirtParticles) return;
 
         Minecraft mc = Minecraft.getMinecraft();
-        if (mc == null) return;
+        if (mc == null || mc.thePlayer == null) return;
 
         EntityClientPlayerMP player = mc.thePlayer;
-        if (player == null || (player.capabilities.isCreativeMode && !DEBUG)) return;
+        if (player.capabilities.isCreativeMode && !DEBUG) return;
 
         spawnPollutionParticles(player);
     }
@@ -222,27 +220,47 @@ public class PollutionRendererRework {
         if (pollutionIntensity < 0) return;
 
         pollutionIntensity = Math.min(pollutionIntensity, 1.0f);
-        pollutionIntensity *= pollutionIntensity; // Quadratic falloff
+        pollutionIntensity *= pollutionIntensity;
 
         int particleCount = Math.round(pollutionIntensity * PARTICLES_MAX_COUNT);
         int playerX = MathHelper.floor_double(player.posX);
         int playerY = MathHelper.floor_double(player.posY);
         int playerZ = MathHelper.floor_double(player.posZ);
 
-        for (int i = 0; i < particleCount; i++) {
-            int particleX = playerX + world.rand.nextInt(16) - world.rand.nextInt(16);
-            int particleY = playerY + world.rand.nextInt(16) - world.rand.nextInt(16);
-            int particleZ = playerZ + world.rand.nextInt(16) - world.rand.nextInt(16);
+        IntStream.range(0, particleCount)
+            .mapToObj(i -> createParticlePosition(world, playerX, playerY, playerZ))
+            .filter(
+                pos -> world.getBlock(pos.x, pos.y, pos.z)
+                    .getMaterial() == Material.air)
+            .forEach(pos -> spawnParticle(world, pos));
+    }
 
-            Block block = world.getBlock(particleX, particleY, particleZ);
-            if (block.getMaterial() == Material.air) {
-                EntityFX pollutionParticle = new EntityFXPollution(
-                    world,
-                    particleX + world.rand.nextFloat(),
-                    particleY + world.rand.nextFloat(),
-                    particleZ + world.rand.nextFloat());
-                Minecraft.getMinecraft().effectRenderer.addEffect(pollutionParticle);
-            }
+    private ParticlePosition createParticlePosition(World world, int playerX, int playerY, int playerZ) {
+        return new ParticlePosition(
+            playerX + world.rand.nextInt(16) - world.rand.nextInt(16),
+            playerY + world.rand.nextInt(16) - world.rand.nextInt(16),
+            playerZ + world.rand.nextInt(16) - world.rand.nextInt(16));
+    }
+
+    private void spawnParticle(World world, ParticlePosition pos) {
+        EntityFX pollutionParticle = new EntityFXPollution(
+            world,
+            pos.x + world.rand.nextFloat(),
+            pos.y + world.rand.nextFloat(),
+            pos.z + world.rand.nextFloat());
+        Minecraft.getMinecraft().effectRenderer.addEffect(pollutionParticle);
+    }
+
+    private static class ParticlePosition {
+
+        final int x;
+        final int y;
+        final int z;
+
+        ParticlePosition(int x, int y, int z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
         }
     }
 }

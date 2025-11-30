@@ -31,13 +31,18 @@ public class PollutionStorage extends GTChunkAssociatedData<PollutionData> {
     @Override
     protected PollutionData readElement(@NotNull DataInput input, int version, @NotNull World world, int chunkX,
         int chunkZ) throws IOException {
-        if (version != 0) throw new IOException("Region file corrupted");
+        if (version != 0) {
+            throw new IOException("Region file corrupted");
+        }
 
-        PollutionData data = new PollutionData(input.readInt());
-        if (data.getAmount() > 0) {
+        int pollutionAmount = input.readInt();
+        PollutionData data = new PollutionData(pollutionAmount);
+
+        if (pollutionAmount > 0) {
             getPollutionManager(world).getPollutedChunks()
                 .add(new ChunkCoordIntPair(chunkX, chunkZ));
         }
+
         return data;
     }
 
@@ -46,33 +51,42 @@ public class PollutionStorage extends GTChunkAssociatedData<PollutionData> {
         return new PollutionData();
     }
 
-    public void mutatePollution(World world, int x, int z, Consumer<PollutionData> mutator,
-        @Nullable Set<ChunkCoordIntPair> chunks) {
-        PollutionData data = get(world, x, z);
+    public void mutatePollution(World world, int chunkX, int chunkZ, Consumer<PollutionData> mutator,
+        @Nullable Set<ChunkCoordIntPair> pollutedChunks) {
+        PollutionData data = get(world, chunkX, chunkZ);
         boolean hadPollution = data.getAmount() > 0;
 
         mutator.accept(data);
 
         boolean hasPollution = data.getAmount() > 0;
         if (hasPollution != hadPollution) {
-            if (chunks == null) chunks = getPollutionManager(world).getPollutedChunks();
-            ChunkCoordIntPair pos = new ChunkCoordIntPair(x, z);
+            Set<ChunkCoordIntPair> targetChunks = pollutedChunks != null ? pollutedChunks
+                : getPollutionManager(world).getPollutedChunks();
+            ChunkCoordIntPair chunkPos = new ChunkCoordIntPair(chunkX, chunkZ);
 
-            if (hasPollution) chunks.add(pos);
-            else chunks.remove(pos);
+            if (hasPollution) {
+                targetChunks.add(chunkPos);
+            } else {
+                targetChunks.remove(chunkPos);
+            }
         }
     }
 
-    public void setPollution(World world, ChunkCoordIntPair cord, int pollution) {
-        mutatePollution(world, cord.chunkXPos, cord.chunkZPos, data -> data.setAmount(pollution), null);
+    public void setPollution(World world, ChunkCoordIntPair chunkCoord, int pollutionAmount) {
+        mutatePollution(
+            world,
+            chunkCoord.chunkXPos,
+            chunkCoord.chunkZPos,
+            data -> data.setAmount(pollutionAmount),
+            null);
     }
 
-    public boolean isCreated(World world, ChunkCoordIntPair cord) {
-        return isCreated(world.provider.dimensionId, cord.chunkXPos, cord.chunkZPos);
+    public boolean isCreated(World world, ChunkCoordIntPair chunkCoord) {
+        return isCreated(world.provider.dimensionId, chunkCoord.chunkXPos, chunkCoord.chunkZPos);
     }
 
     private Pollution getPollutionManager(World world) {
         return GTMod.proxy.dimensionWisePollutionRework
-            .computeIfAbsent(world.provider.dimensionId, i -> new Pollution(world));
+            .computeIfAbsent(world.provider.dimensionId, dimensionId -> new Pollution(world));
     }
 }

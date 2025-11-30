@@ -3,32 +3,36 @@ package gregtech.common.pollutionRework;
 import gregtech.api.util.GTChunkAssociatedData;
 import gregtech.api.util.GTUtility;
 
-public class PollutionData implements GTChunkAssociatedData.IData {
+public final class PollutionData implements GTChunkAssociatedData.IData {
 
-    private int amount;
+    private int pollutionAmount;
 
     public PollutionData() {
         this(0);
     }
 
-    public PollutionData(int amount) {
-        this.amount = Math.max(0, amount);
+    public PollutionData(int initialAmount) {
+        this.pollutionAmount = calculateSafeAmount(initialAmount);
     }
 
     public int getAmount() {
-        return amount;
+        return pollutionAmount;
     }
 
-    public void setAmount(int amount) {
-        this.amount = Math.max(amount, 0);
+    public void setAmount(int newAmount) {
+        this.pollutionAmount = calculateSafeAmount(newAmount);
     }
 
     public void changeAmount(int delta) {
-        this.amount = Math.max(GTUtility.safeInt(amount + (long) delta), 0);
+        this.pollutionAmount = calculateSafeAmount(GTUtility.safeInt(pollutionAmount + (long) delta));
     }
 
     @Override
     public boolean isSameAsDefault() {
-        return amount == 0;
+        return pollutionAmount == 0;
+    }
+
+    private static int calculateSafeAmount(int amount) {
+        return Math.max(amount, 0);
     }
 }

@@ -1,5 +1,6 @@
 package gregtech.common.pollutionRework;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,52 +23,29 @@ public class BlockMatcherRework {
     private final Set<Class<?>> blackList = ConcurrentHashMap.newKeySet();
     private volatile Map<Integer, ColorOverrideTypeRework> blockIDs = ImmutableMap.of();
 
-    /**
-     * Matches block by ID with thread-safe read access
-     */
     public ColorOverrideTypeRework matchesID(int blockId) {
         return blockIDs.get(blockId);
     }
 
-    /**
-     * Matches block instance with thread-safe read access
-     */
     public ColorOverrideTypeRework matchesID(Block block) {
         if (block == null) return null;
         Integer blockId = Block.blockRegistry.getIDForObject(block);
         return blockIDs.get(blockId);
     }
 
-    /**
-     * Updates class lists from configuration with validation
-     */
     public void updateClassList(String[] cfg) {
         if (cfg == null) return;
 
         Map<Class<?>, ColorOverrideTypeRework> newWhiteList = new ConcurrentHashMap<>();
         Set<Class<?>> newBlackList = ConcurrentHashMap.newKeySet();
 
-        for (String line : cfg) {
-            if (line == null || line.trim()
-                .isEmpty()) continue;
+        Arrays.stream(cfg)
+            .filter(
+                line -> line != null && !line.trim()
+                    .isEmpty())
+            .map(String::trim)
+            .forEach(line -> processConfigurationLine(line, newWhiteList, newBlackList));
 
-            String trimmedLine = line.trim();
-            GTMod.GT_FML_LOGGER.debug("Processing block configuration: {}", trimmedLine);
-
-            String[] parts = trimmedLine.split(":");
-            if (parts.length == 0) continue;
-
-            String className = parts[0].trim();
-
-            // Handle blacklist entries (starting with '-')
-            if (className.startsWith("-")) {
-                processBlacklistEntry(className.substring(1), newBlackList);
-            } else {
-                processWhitelistEntry(className, parts, newWhiteList);
-            }
-        }
-
-        // Atomic update of collections
         this.whiteList.clear();
         this.whiteList.putAll(newWhiteList);
         this.blackList.clear();
@@ -76,42 +54,56 @@ public class BlockMatcherRework {
         scheduleBlockIDsUpdate();
     }
 
-    private void processBlacklistEntry(String className, Set<Class<?>> targetBlackList) {
-        try {
-            Class<?> clazz = Class.forName(className);
-            targetBlackList.add(clazz);
-            GTMod.GT_FML_LOGGER.debug("Added to blacklist: {}", className);
-        } catch (ClassNotFoundException e) {
-            GTMod.GT_FML_LOGGER.warn("Class not found for blacklist: {}", className);
-        } catch (Exception e) {
-            GTMod.GT_FML_LOGGER.error("Error processing blacklist entry {}: {}", className, e.getMessage());
+    private void processConfigurationLine(String line, Map<Class<?>, ColorOverrideTypeRework> whiteList,
+        Set<Class<?>> blackList) {
+        if (line.startsWith("-")) {
+            processBlacklistEntry(line.substring(1), blackList);
+        } else {
+            processWhitelistEntry(line, whiteList);
         }
     }
 
-    private void processWhitelistEntry(String className, String[] parts,
-        Map<Class<?>, ColorOverrideTypeRework> targetWhiteList) {
+    private void processBlacklistEntry(String className, Set<Class<?>> targetBlackList) {
+        Class<?> clazz = loadClassSafely(className);
+        if (clazz != null) {
+            targetBlackList.add(clazz);
+            GTMod.GT_FML_LOGGER.debug("Added to blacklist: {}", className);
+        }
+    }
+
+    private void processWhitelistEntry(String line, Map<Class<?>, ColorOverrideTypeRework> targetWhiteList) {
+        String[] parts = line.split(":");
         if (parts.length < 2) {
-            GTMod.GT_FML_LOGGER.error("Missing type for whitelist entry: {}", className);
+            GTMod.GT_FML_LOGGER.error("Missing type for whitelist entry: {}", parts[0]);
             return;
         }
 
-        try {
-            ColorOverrideTypeRework type = ColorOverrideTypeRework.fromName(parts[1].trim());
-            Class<?> clazz = Class.forName(className);
-            targetWhiteList.put(clazz, type);
-            GTMod.GT_FML_LOGGER.debug("Added to whitelist: {} with type {}", className, type);
-        } catch (IllegalArgumentException e) {
-            GTMod.GT_FML_LOGGER.error("Invalid type [{}] for class {}", parts[1], className);
-        } catch (ClassNotFoundException e) {
-            GTMod.GT_FML_LOGGER.warn("Class not found for whitelist: {}", className);
-        } catch (Exception e) {
-            GTMod.GT_FML_LOGGER.error("Error processing whitelist entry {}: {}", className, e.getMessage());
+        String className = parts[0].trim();
+        String typeName = parts[1].trim();
+
+        Class<?> clazz = loadClassSafely(className);
+        if (clazz != null) {
+            try {
+                ColorOverrideTypeRework type = ColorOverrideTypeRework.fromName(typeName);
+                targetWhiteList.put(clazz, type);
+                GTMod.GT_FML_LOGGER.debug("Added to whitelist: {} with type {}", className, type);
+            } catch (IllegalArgumentException e) {
+                GTMod.GT_FML_LOGGER.error("Invalid type [{}] for class {}", typeName, className);
+            }
         }
     }
 
-    /**
-     * Schedules an asynchronous update of block IDs
-     */
+    private Class<?> loadClassSafely(String className) {
+        try {
+            return Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            GTMod.GT_FML_LOGGER.warn("Class not found: {}", className);
+        } catch (Exception e) {
+            GTMod.GT_FML_LOGGER.error("Error processing class {}: {}", className, e.getMessage());
+        }
+        return null;
+    }
+
     public void scheduleBlockIDsUpdate() {
         new Thread(this::updateBlockIDs, "BlockMatcher-Update").start();
     }
@@ -123,14 +115,14 @@ public class BlockMatcherRework {
         for (Block block : blockRegistry.typeSafeIterable()) {
             if (block == null) continue;
 
+            Integer blockId = Block.blockRegistry.getIDForObject(block);
             ColorOverrideTypeRework type = matchesClass(block);
+
             if (type != null) {
-                Integer blockId = Block.blockRegistry.getIDForObject(block);
                 newBlockIDs.put(blockId, type);
             }
         }
 
-        // Atomic update of the immutable map
         this.blockIDs = ImmutableMap.copyOf(newBlockIDs);
         GTMod.GT_FML_LOGGER.info("Updated block IDs cache, now tracking {} blocks", newBlockIDs.size());
     }
@@ -138,48 +130,35 @@ public class BlockMatcherRework {
     private ColorOverrideTypeRework matchesClass(Block block) {
         Class<?> blockClass = block.getClass();
 
-        // Check blacklist first for early exit
-        for (Class<?> blackClass : blackList) {
-            if (blackClass.isAssignableFrom(blockClass)) {
-                return null;
-            }
+        boolean isBlacklisted = blackList.stream()
+            .anyMatch(blackClass -> blackClass.isAssignableFrom(blockClass));
+
+        if (isBlacklisted) {
+            return null;
         }
 
-        // Check whitelist
-        for (Map.Entry<Class<?>, ColorOverrideTypeRework> entry : whiteList.entrySet()) {
-            if (entry.getKey()
-                .isAssignableFrom(blockClass)) {
-                return entry.getValue();
-            }
-        }
-
-        return null;
+        return whiteList.entrySet()
+            .stream()
+            .filter(
+                entry -> entry.getKey()
+                    .isAssignableFrom(blockClass))
+            .map(Map.Entry::getValue)
+            .findFirst()
+            .orElse(null);
     }
 
-    /**
-     * Returns an immutable view of current block mappings
-     */
     public Map<Integer, ColorOverrideTypeRework> getBlockMappings() {
         return blockIDs;
     }
 
-    /**
-     * Returns current whitelist snapshot
-     */
     public Map<Class<?>, ColorOverrideTypeRework> getWhitelistSnapshot() {
         return ImmutableMap.copyOf(whiteList);
     }
 
-    /**
-     * Returns current blacklist snapshot
-     */
     public Set<Class<?>> getBlacklistSnapshot() {
         return ImmutableSet.copyOf(blackList);
     }
 
-    /**
-     * Caches block IDs on world load for fast lookup
-     */
     @SubscribeEvent
     public void handleWorldLoad(WorldEvent.Load event) {
         if (event.world instanceof WorldClient) {

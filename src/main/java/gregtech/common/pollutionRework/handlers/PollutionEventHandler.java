@@ -13,28 +13,30 @@ import gregtech.common.pollutionRework.PollutionStorage;
 
 public class PollutionEventHandler {
 
-    private final PollutionStorage STORAGE = Pollution.getSTORAGE();
+    private static final PollutionStorage STORAGE = Pollution.getStorage();
 
     @SubscribeEvent
-    public void chunkWatch(ChunkWatchEvent.Watch event) {
+    public void onChunkWatch(ChunkWatchEvent.Watch event) {
         World world = event.player.worldObj;
+
         if (STORAGE.isCreated(world, event.chunk)) {
             int pollution = STORAGE.get(world, event.chunk)
                 .getAmount();
-            if (PollutionNetworkHandler.shouldSendUpdate(pollution))
+            if (PollutionNetworkHandler.shouldSendUpdate(pollution)) {
                 GTValues.NW.sendToPlayer(new GTPacketPollution(event.chunk, pollution), event.player);
+            }
         }
     }
 
     @SubscribeEvent
-    public void onWorldLoad(WorldEvent.Load e) {
-        if (!e.world.isRemote) {
-            STORAGE.loadAll(e.world);
+    public void onWorldLoad(WorldEvent.Load event) {
+        if (!event.world.isRemote) {
+            STORAGE.loadAll(event.world);
         }
     }
 
     @SubscribeEvent
-    public void onWorldUnload(WorldEvent.Unload e) {
-        GTMod.proxy.dimensionWisePollutionRework.remove(e.world.provider.dimensionId);
+    public void onWorldUnload(WorldEvent.Unload event) {
+        GTMod.proxy.dimensionWisePollutionRework.remove(event.world.provider.dimensionId);
     }
 }
