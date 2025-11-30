@@ -11,8 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
-import gregtech.common.pollution.ColorOverrideType;
-import gregtech.common.pollution.Pollution;
+import gregtech.common.pollutionRework.ColorOverrideTypeRework;
 
 @Mixin(RenderBlocks.class)
 public class MixinRenderBlocks_PollutionWithOptifine {
@@ -25,7 +24,7 @@ public class MixinRenderBlocks_PollutionWithOptifine {
             target = "LCustomColorizer;getColorMultiplier(Lnet/minecraft/block/Block;Lnet/minecraft/world/IBlockAccess;III)I",
             remap = false))
     private int gt5u$pollutionStandardBlock(int color, Block block, int blockX, int blockY, int blockZ) {
-        ColorOverrideType type = Pollution.standardBlocks.matchesID(block);
+        ColorOverrideTypeRework type = gregtech.common.pollutionRework.Pollution.standardBlocks.matchesID(block);
         if (type == null) return color;
         return type.getColor(color, blockX, blockZ);
     }
@@ -38,7 +37,7 @@ public class MixinRenderBlocks_PollutionWithOptifine {
             target = "LCustomColorizer;getFluidColor(Lnet/minecraft/block/Block;Lnet/minecraft/world/IBlockAccess;III)I",
             remap = false))
     private int gt5u$pollutionBlockLiquid(int color, Block block, int blockX, int blockY, int blockZ) {
-        ColorOverrideType type = Pollution.liquidBlocks.matchesID(block);
+        ColorOverrideTypeRework type = gregtech.common.pollutionRework.Pollution.liquidBlocks.matchesID(block);
         if (type == null || block.getMaterial() != Material.water) {
             return color;
         }
@@ -53,7 +52,7 @@ public class MixinRenderBlocks_PollutionWithOptifine {
             target = "LCustomColorizer;getColorMultiplier(Lnet/minecraft/block/Block;Lnet/minecraft/world/IBlockAccess;III)I",
             remap = false))
     private int gt5u$pollutionBlockDoublePlant(int color, BlockDoublePlant block, int blockX, int blockY, int blockZ) {
-        ColorOverrideType type = Pollution.doublePlants.matchesID(block);
+        ColorOverrideTypeRework type = gregtech.common.pollutionRework.Pollution.doublePlants.matchesID(block);
         if (type == null) return color;
         return type.getColor(color, blockX, blockZ);
     }
@@ -66,7 +65,7 @@ public class MixinRenderBlocks_PollutionWithOptifine {
             target = "LCustomColorizer;getColorMultiplier(Lnet/minecraft/block/Block;Lnet/minecraft/world/IBlockAccess;III)I",
             remap = false))
     private int gt5u$pollutionCrossedSquares(int color, Block block, int blockX, int blockY, int blockZ) {
-        ColorOverrideType type = Pollution.crossedSquares.matchesID(block);
+        ColorOverrideTypeRework type = gregtech.common.pollutionRework.Pollution.crossedSquares.matchesID(block);
         if (type == null) return color;
         return type.getColor(color, blockX, blockZ);
     }
@@ -79,7 +78,7 @@ public class MixinRenderBlocks_PollutionWithOptifine {
             target = "LCustomColorizer;getColorMultiplier(Lnet/minecraft/block/Block;Lnet/minecraft/world/IBlockAccess;III)I",
             remap = false))
     private int gt5u$pollutionBlockVine(int color, Block block, int blockX, int blockY, int blockZ) {
-        ColorOverrideType type = Pollution.blockVine.matchesID(block);
+        ColorOverrideTypeRework type = gregtech.common.pollutionRework.Pollution.blockVine.matchesID(block);
         if (type == null) return color;
         return type.getColor(color, blockX, blockZ);
     }

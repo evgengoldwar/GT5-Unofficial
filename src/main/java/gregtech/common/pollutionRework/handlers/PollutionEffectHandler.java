@@ -17,6 +17,7 @@ import gregtech.api.hazards.HazardProtection;
 import gregtech.common.pollutionRework.PollutionBlockDamager;
 
 public class PollutionEffectHandler {
+
     private static final int SMOG_DURATION_DIVISOR = 1000;
     private static final int SMOG_AMPLIFIER_DIVISOR = 400000;
     private static final int POISON_HUNGER_DIVISOR = 500000;
@@ -88,13 +89,19 @@ public class PollutionEffectHandler {
                 entity.addPotionEffect(new PotionEffect(Potion.hunger.id, pollution / POISON_HUNGER_DIVISOR, 0));
                 break;
             case 1:
-                entity.addPotionEffect(new PotionEffect(Potion.confusion.id, Math.min(pollution / POISON_CONFUSION_DIVISOR, 1000), 1));
+                entity.addPotionEffect(
+                    new PotionEffect(Potion.confusion.id, Math.min(pollution / POISON_CONFUSION_DIVISOR, 1000), 1));
                 break;
             case 2:
-                entity.addPotionEffect(new PotionEffect(Potion.poison.id, Math.min(pollution / POISON_POISON_DIVISOR, 1000), pollution / POISON_HUNGER_DIVISOR));
+                entity.addPotionEffect(
+                    new PotionEffect(
+                        Potion.poison.id,
+                        Math.min(pollution / POISON_POISON_DIVISOR, 1000),
+                        pollution / POISON_HUNGER_DIVISOR));
                 break;
             case 3:
-                entity.addPotionEffect(new PotionEffect(Potion.blindness.id, Math.min(pollution / POISON_CONFUSION_DIVISOR, 1000), 1));
+                entity.addPotionEffect(
+                    new PotionEffect(Potion.blindness.id, Math.min(pollution / POISON_CONFUSION_DIVISOR, 1000), 1));
                 break;
         }
     }

@@ -119,52 +119,52 @@ public enum Mixin implements IMixins {
     POLLUTION_RENDER_BLOCKS(new MixinBuilder()
         .addClientMixins("minecraft.pollution.MixinRenderBlocks_PollutionWithoutOptifine")
         .addExcludedMod(TargetedMod.OPTIFINE)
-        .setApplyIf(() -> PollutionConfig.pollution && PollutionConfig.pollutionBlockRecolor)
+        .setApplyIf(() -> PollutionConfig.pollutionBlockRecolor)
         .setPhase(Phase.EARLY)),
     POLLUTION_RENDER_BLOCKS_OPTIFINE(new MixinBuilder()
         .addClientMixins("minecraft.pollution.MixinRenderBlocks_PollutionWithOptifine")
         .addRequiredMod(TargetedMod.OPTIFINE)
         .addExcludedMod(TargetedMod.ANGELICA)
-        .setApplyIf(() -> PollutionConfig.pollution && PollutionConfig.pollutionBlockRecolor)
+        .setApplyIf(() -> PollutionConfig.pollutionBlockRecolor)
         .setPhase(Phase.EARLY)),
     POLLUTION_RENDER_BLOCKS_BOP(new MixinBuilder()
         .addClientMixins("biomesoplenty.MixinFoliageRendererPollution")
         .addRequiredMod(TargetedMod.BIOMESOPLENTY)
-        .setApplyIf(() -> PollutionConfig.pollution && PollutionConfig.pollutionBlockRecolor)
+        .setApplyIf(() -> PollutionConfig.pollutionBlockRecolor)
         .setPhase(Phase.LATE)),
     POLLUTION_MINECRAFT_FURNACE(new MixinBuilder()
         .setPhase(Phase.EARLY)
         .addCommonMixins("minecraft.pollution.MixinTileEntityFurnacePollution")
-        .setApplyIf(() -> PollutionConfig.pollution && PollutionConfig.furnacesPollute)),
+        .setApplyIf(() -> PollutionConfig.furnacesPollute)),
     POLLUTION_MINECRAFT_EXPLOSION(new MixinBuilder()
         .setPhase(Phase.EARLY)
         .addCommonMixins("minecraft.pollution.MixinExplosionPollution")
-        .setApplyIf(() -> PollutionConfig.pollution && PollutionConfig.explosionPollutionAmount != 0F)),
+        .setApplyIf(() -> PollutionConfig.explosionPollutionAmount != 0F)),
     POLLUTION_IC2_IRON_FURNACE(
         new MixinBuilder()
             .addCommonMixins("ic2.MixinIC2IronFurnacePollution")
             .setPhase(Phase.LATE)
-            .setApplyIf(() -> PollutionConfig.pollution && PollutionConfig.furnacesPollute)
+            .setApplyIf(() -> PollutionConfig.furnacesPollute)
             .addRequiredMod(TargetedMod.IC2)),
     POLLUTION_THAUMCRAFT_ALCHEMICAL_FURNACE(new MixinBuilder("Thaumcraft Alchemical Construct Pollutes")
         .addCommonMixins("thaumcraft.MixinThaumcraftAlchemyFurnacePollution")
         .setPhase(Phase.LATE)
-        .setApplyIf(() -> PollutionConfig.pollution && PollutionConfig.furnacesPollute)
+        .setApplyIf(() -> PollutionConfig.furnacesPollute)
         .addRequiredMod(TargetedMod.THAUMCRAFT)),
     POLLUTION_TICON_SLAB_FURNACE(new MixinBuilder("Tinker's Contruct Slab Furnace Pollutes")
         .addCommonMixins("tinkersconstruct.MixinFurnaceLogicPollution")
         .setPhase(Phase.LATE)
-        .setApplyIf(() -> PollutionConfig.pollution && PollutionConfig.furnacesPollute)
+        .setApplyIf(() -> PollutionConfig.furnacesPollute)
         .addRequiredMod(TargetedMod.TINKERSCONSTRUCT)),
     POLLUTION_EFR_FURNACE(new MixinBuilder("Et Futurum Requiem Blast Furnace and Smoker Pollutes")
         .addCommonMixins("efr.MixinTileEntityBlastFurnacePollution", "efr.MixinTileEntitySmokerPollution")
         .setPhase(Phase.LATE)
-        .setApplyIf(() -> PollutionConfig.pollution && PollutionConfig.furnacesPollute)
+        .setApplyIf(() -> PollutionConfig.furnacesPollute)
         .addRequiredMod(TargetedMod.EFR)),
     POLLUTION_NATURA_NETHER_FURNACE(new MixinBuilder("Natura Nether Furnace Pollutes")
         .addCommonMixins("natura.MixinNetherrackFurnacePollution")
         .setPhase(Phase.LATE)
-        .setApplyIf(() -> PollutionConfig.pollution && PollutionConfig.furnacesPollute)
+        .setApplyIf(() -> PollutionConfig.furnacesPollute)
         .addRequiredMod(TargetedMod.NATURA)),
     POLLUTION_RAILCRAFT(new MixinBuilder("Make Railcraft Pollute")
         .addCommonMixins(
@@ -172,13 +172,13 @@ public enum Mixin implements IMixins {
             "railcraft.MixinRailcraftCokeOvenPollution",
             "railcraft.MixinRailcraftTunnelBorePollution")
         .setPhase(Phase.LATE)
-        .setApplyIf(() -> PollutionConfig.pollution && PollutionConfig.railcraftPollutes)
+        .setApplyIf(() -> PollutionConfig.railcraftPollutes)
         .addRequiredMod(TargetedMod.RAILCRAFT)),
     POLLUTION_ROCKET(
         new MixinBuilder()
             .addCommonMixins("galacticraftcore.MixinGalacticraftRocketPollution")
             .setPhase(Phase.LATE)
-            .setApplyIf(() -> PollutionConfig.pollution && PollutionConfig.rocketsPollute)
+            .setApplyIf(() -> PollutionConfig.rocketsPollute)
             .addRequiredMod(TargetedMod.GALACTICRAFT_CORE));
     // spotless:on
 

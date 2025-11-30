@@ -4,6 +4,7 @@ import gregtech.api.util.GTChunkAssociatedData;
 import gregtech.api.util.GTUtility;
 
 public class PollutionData implements GTChunkAssociatedData.IData {
+
     private int amount;
 
     public PollutionData() {

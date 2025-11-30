@@ -20,6 +20,8 @@ import gregtech.GTMod;
 import gregtech.api.interfaces.ICleanroom;
 import gregtech.api.interfaces.ICleanroomReceiver;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.common.pollution.PollutionConfig;
+import gregtech.common.pollution.PollutionTooltip;
 import gregtech.common.pollutionRework.handlers.PollutionEffectHandler;
 import gregtech.common.pollutionRework.handlers.PollutionEventHandler;
 import gregtech.common.pollutionRework.handlers.PollutionNetworkHandler;
@@ -27,6 +29,7 @@ import gregtech.common.pollutionRework.handlers.PollutionSpreadHandler;
 
 @ParametersAreNonnullByDefault
 public class Pollution {
+
     private static final PollutionStorage STORAGE = new PollutionStorage();
     private static final PollutionEffectHandler EFFECT_HANDLER = new PollutionEffectHandler();
     private static final PollutionSpreadHandler SPREAD_HANDLER = new PollutionSpreadHandler();
@@ -42,6 +45,31 @@ public class Pollution {
     private static final int POLLUTION_PACKET_MIN_VALUE = 1000;
     private static final float NATURAL_DECAY_RATE = 0.9945f;
     private static final int SPREAD_THRESHOLD = 400000;
+
+    public static BlockMatcherRework standardBlocks;
+    public static BlockMatcherRework liquidBlocks;
+    public static BlockMatcherRework doublePlants;
+    public static BlockMatcherRework crossedSquares;
+    public static BlockMatcherRework blockVine;
+
+    public static void onPostInitClient() {
+        standardBlocks = new BlockMatcherRework();
+        liquidBlocks = new BlockMatcherRework();
+        doublePlants = new BlockMatcherRework();
+        crossedSquares = new BlockMatcherRework();
+        blockVine = new BlockMatcherRework();
+        standardBlocks.updateClassList(PollutionConfig.renderStandardBlock);
+        liquidBlocks.updateClassList(PollutionConfig.renderBlockLiquid);
+        doublePlants.updateClassList(PollutionConfig.renderBlockDoublePlant);
+        crossedSquares.updateClassList(PollutionConfig.renderCrossedSquares);
+        blockVine.updateClassList(PollutionConfig.renderblockVine);
+        MinecraftForge.EVENT_BUS.register(standardBlocks);
+        MinecraftForge.EVENT_BUS.register(liquidBlocks);
+        MinecraftForge.EVENT_BUS.register(doublePlants);
+        MinecraftForge.EVENT_BUS.register(crossedSquares);
+        MinecraftForge.EVENT_BUS.register(blockVine);
+        MinecraftForge.EVENT_BUS.register(new PollutionTooltip());
+    }
 
     public Pollution(World world) {
         this.world = world;
@@ -59,7 +87,7 @@ public class Pollution {
     }
 
     public static void onWorldTick(TickEvent.WorldTickEvent event) {
-        if (!GTMod.proxy.mPollution || event.phase == TickEvent.Phase.START) return;
+        if (event.phase == TickEvent.Phase.START) return;
 
         final Pollution pollutionInstance = GTMod.proxy.dimensionWisePollutionRework
             .computeIfAbsent(event.world.provider.dimensionId, i -> new Pollution(event.world));
@@ -70,7 +98,8 @@ public class Pollution {
     private void tickPollutionInWorld(int tickId) {
         initializeCycleIfNeeded(tickId);
 
-        for (int chunksProcessed = 0; chunksProcessed < operationsPerTick && !pollutionList.isEmpty(); chunksProcessed++) {
+        for (int chunksProcessed = 0; chunksProcessed < operationsPerTick
+            && !pollutionList.isEmpty(); chunksProcessed++) {
             ChunkCoordIntPair chunkPos = pollutionList.remove(pollutionList.size() - 1);
             processChunkPollution(chunkPos);
         }
@@ -100,7 +129,12 @@ public class Pollution {
     }
 
     private void setChunkPollution(ChunkCoordIntPair coord, int pollution) {
-        STORAGE.mutatePollution(world, coord.chunkXPos, coord.chunkZPos, data -> data.setAmount(pollution), pollutedChunks);
+        STORAGE.mutatePollution(
+            world,
+            coord.chunkXPos,
+            coord.chunkZPos,
+            data -> data.setAmount(pollution),
+            pollutedChunks);
     }
 
     private void sendPollutionUpdateIfNeeded(ChunkCoordIntPair chunkPos, int pollution) {
@@ -110,7 +144,7 @@ public class Pollution {
     }
 
     public static void addPollution(World world, int chunkX, int chunkZ, int pollution) {
-        if (!GTMod.proxy.mPollution || pollution == 0 || world.isRemote) return;
+        if (pollution == 0 || world.isRemote) return;
         STORAGE.mutatePollution(world, chunkX, chunkZ, data -> data.changeAmount(pollution), null);
     }
 
@@ -119,7 +153,7 @@ public class Pollution {
     }
 
     public static void addPollution(TileEntity te, int aPollution) {
-        if (!GTMod.proxy.mPollution || aPollution == 0 || te.getWorldObj().isRemote) return;
+        if (aPollution == 0 || te.getWorldObj().isRemote) return;
 
         if (aPollution > 0) {
             ICleanroomReceiver receiver = Capabilities.getCapability(te, ICleanroomReceiver.class);
@@ -139,11 +173,11 @@ public class Pollution {
     }
 
     public static int getPollution(World world, int chunkX, int chunkZ) {
-        if (!GTMod.proxy.mPollution) return 0;
         if (world.isRemote) {
             return GTMod.clientProxy().mPollutionRenderer.getKnownPollution(chunkX << 4, chunkZ << 4);
         }
-        return STORAGE.get(world, chunkX, chunkZ).getAmount();
+        return STORAGE.get(world, chunkX, chunkZ)
+            .getAmount();
     }
 
     public static PollutionStorage getSTORAGE() {
@@ -155,8 +189,8 @@ public class Pollution {
     }
 
     public static boolean hasPollution(Chunk chunk) {
-        return GTMod.proxy.mPollution && STORAGE.isCreated(chunk.worldObj, chunk.getChunkCoordIntPair())
-            && STORAGE.get(chunk).getAmount() > 0;
+        return STORAGE.isCreated(chunk.worldObj, chunk.getChunkCoordIntPair()) && STORAGE.get(chunk)
+            .getAmount() > 0;
     }
 
     public Set<ChunkCoordIntPair> getPollutedChunks() {

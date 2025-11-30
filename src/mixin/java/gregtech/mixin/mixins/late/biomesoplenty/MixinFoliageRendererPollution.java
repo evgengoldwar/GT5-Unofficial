@@ -9,8 +9,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
 import biomesoplenty.client.render.blocks.FoliageRenderer;
-import gregtech.common.pollution.ColorOverrideType;
-import gregtech.common.pollution.Pollution;
+import gregtech.common.pollutionRework.ColorOverrideTypeRework;
+import gregtech.common.pollutionRework.Pollution;
 
 @Mixin(FoliageRenderer.class)
 public class MixinFoliageRendererPollution {
@@ -24,7 +24,7 @@ public class MixinFoliageRendererPollution {
             remap = false))
     private int gt5u$pollutionCrossedSquares(int color, Block block, int blockX, int blockY, int blockZ,
         RenderBlocks renderer) {
-        ColorOverrideType type = Pollution.blockVine.matchesID(block);
+        ColorOverrideTypeRework type = Pollution.blockVine.matchesID(block);
         if (type == null) return color;
         return type.getColor(color, blockX, blockZ);
     }

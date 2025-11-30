@@ -8,6 +8,7 @@ import gregtech.api.enums.GTValues;
 import gregtech.api.net.GTPacketPollution;
 
 public class PollutionNetworkHandler {
+
     private static final int POLLUTION_PACKET_MIN_VALUE = 1000;
 
     public static void sendPollutionUpdate(World world, ChunkCoordIntPair chunkPos, int pollution) {

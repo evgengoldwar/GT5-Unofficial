@@ -8,13 +8,13 @@ import java.util.function.Consumer;
 
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
+
+import org.jetbrains.annotations.NotNull;
 
 import com.gtnewhorizons.angelica.shadow.javax.annotation.Nullable;
 
 import gregtech.GTMod;
 import gregtech.api.util.GTChunkAssociatedData;
-import org.jetbrains.annotations.NotNull;
 
 public class PollutionStorage extends GTChunkAssociatedData<PollutionData> {
 
@@ -23,17 +23,20 @@ public class PollutionStorage extends GTChunkAssociatedData<PollutionData> {
     }
 
     @Override
-    protected void writeElement(DataOutput output, PollutionData element, @NotNull World world, int chunkX, int chunkZ) throws IOException {
+    protected void writeElement(DataOutput output, PollutionData element, @NotNull World world, int chunkX, int chunkZ)
+        throws IOException {
         output.writeInt(element.getAmount());
     }
 
     @Override
-    protected PollutionData readElement(@NotNull DataInput input, int version, @NotNull World world, int chunkX, int chunkZ) throws IOException {
+    protected PollutionData readElement(@NotNull DataInput input, int version, @NotNull World world, int chunkX,
+        int chunkZ) throws IOException {
         if (version != 0) throw new IOException("Region file corrupted");
 
         PollutionData data = new PollutionData(input.readInt());
         if (data.getAmount() > 0) {
-            getPollutionManager(world).getPollutedChunks().add(new ChunkCoordIntPair(chunkX, chunkZ));
+            getPollutionManager(world).getPollutedChunks()
+                .add(new ChunkCoordIntPair(chunkX, chunkZ));
         }
         return data;
     }
@@ -43,7 +46,8 @@ public class PollutionStorage extends GTChunkAssociatedData<PollutionData> {
         return new PollutionData();
     }
 
-    public void mutatePollution(World world, int x, int z, Consumer<PollutionData> mutator, @Nullable Set<ChunkCoordIntPair> chunks) {
+    public void mutatePollution(World world, int x, int z, Consumer<PollutionData> mutator,
+        @Nullable Set<ChunkCoordIntPair> chunks) {
         PollutionData data = get(world, x, z);
         boolean hadPollution = data.getAmount() > 0;
 
@@ -68,6 +72,7 @@ public class PollutionStorage extends GTChunkAssociatedData<PollutionData> {
     }
 
     private Pollution getPollutionManager(World world) {
-        return GTMod.proxy.dimensionWisePollutionRework.computeIfAbsent(world.provider.dimensionId, i -> new Pollution(world));
+        return GTMod.proxy.dimensionWisePollutionRework
+            .computeIfAbsent(world.provider.dimensionId, i -> new Pollution(world));
     }
 }
