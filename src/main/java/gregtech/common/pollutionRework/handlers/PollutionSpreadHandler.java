@@ -22,24 +22,17 @@ public class PollutionSpreadHandler {
     private static final int SPREAD_DIVISOR = 20;
 
     public void handlePollutionSpread(World world, ChunkCoordIntPair sourcePos, int sourcePollution,
-        PollutionStorage storage) {
+        PollutionStorage storage, Set<ChunkCoordIntPair> pollutedChunks) {
         Arrays.stream(NEIGHBOR_OFFSETS)
             .map(
                 offset -> new ChunkCoordIntPair(
                     sourcePos.chunkXPos + offset.chunkXPos,
                     sourcePos.chunkZPos + offset.chunkZPos))
-            .forEach(neighborPos -> spreadPollutionToNeighbor(world, sourcePos, sourcePollution, neighborPos, storage));
+            .forEach(neighborPos -> spreadPollutionToNeighbor(world, sourcePos, sourcePollution, neighborPos, storage, pollutedChunks));
     }
 
     private void spreadPollutionToNeighbor(World world, ChunkCoordIntPair sourcePos, int sourcePollution,
-                                           ChunkCoordIntPair neighborPos, PollutionStorage storage) {
-
-        Pollution pollutionInstance = GTMod.proxy.dimensionWisePollutionRework
-            .get(world.provider.dimensionId);
-
-        if (pollutionInstance == null) return;
-
-        Set<ChunkCoordIntPair> pollutedChunks = pollutionInstance.getPollutedChunks();
+                                           ChunkCoordIntPair neighborPos, PollutionStorage storage, Set<ChunkCoordIntPair> pollutedChunks) {
 
         PollutionData neighborData = storage.get(world, neighborPos);
         int neighborPollution = neighborData.getAmount();

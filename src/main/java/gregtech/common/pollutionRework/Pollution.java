@@ -115,7 +115,7 @@ public class Pollution {
         int pollution = applyNaturalDecay(data.getAmount());
 
         if (pollution > SPREAD_THRESHOLD) {
-            SPREAD_HANDLER.handlePollutionSpread(world, chunkPos, pollution, STORAGE);
+            SPREAD_HANDLER.handlePollutionSpread(world, chunkPos, pollution, STORAGE, pollutedChunks);
             EFFECT_HANDLER.applyPollutionEffects(world, chunkPos, pollution);
         }
 
