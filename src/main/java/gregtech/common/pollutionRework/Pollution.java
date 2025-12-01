@@ -41,7 +41,7 @@ public class Pollution {
     private int operationsPerTick = 0;
     private boolean blank = true;
 
-    private static final short CYCLE_LENGTH = 1200;
+    private static final short CYCLE_LENGTH = 100;
     private static final int POLLUTION_PACKET_MIN_VALUE = 1000;
     private static final float NATURAL_DECAY_RATE = 0.9945f;
     private static final int SPREAD_THRESHOLD = 400000;

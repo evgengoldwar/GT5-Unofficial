@@ -1,7 +1,10 @@
 package gregtech.common.pollutionRework.handlers;
 
 import java.util.Arrays;
+import java.util.Set;
 
+import gregtech.GTMod;
+import gregtech.common.pollutionRework.Pollution;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 
@@ -29,14 +32,29 @@ public class PollutionSpreadHandler {
     }
 
     private void spreadPollutionToNeighbor(World world, ChunkCoordIntPair sourcePos, int sourcePollution,
-        ChunkCoordIntPair neighborPos, PollutionStorage storage) {
+                                           ChunkCoordIntPair neighborPos, PollutionStorage storage) {
+
+        Pollution pollutionInstance = GTMod.proxy.dimensionWisePollutionRework
+            .get(world.provider.dimensionId);
+
+        if (pollutionInstance == null) return;
+
+        Set<ChunkCoordIntPair> pollutedChunks = pollutionInstance.getPollutedChunks();
+
         PollutionData neighborData = storage.get(world, neighborPos);
         int neighborPollution = neighborData.getAmount();
 
         if (shouldSpreadPollution(sourcePollution, neighborPollution)) {
             int difference = calculateSpreadDifference(sourcePollution, neighborPollution);
-            int newPollution = GTUtility.safeInt((long) neighborPollution + difference);
-            storage.setPollution(world, neighborPos, newPollution);
+            if (difference > 0) {
+                storage.mutatePollution(
+                    world,
+                    neighborPos.chunkXPos,
+                    neighborPos.chunkZPos,
+                    data -> data.changeAmount(difference),
+                    pollutedChunks
+                );
+            }
         }
     }
 

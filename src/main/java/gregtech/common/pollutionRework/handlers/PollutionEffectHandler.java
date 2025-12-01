@@ -25,7 +25,7 @@ public class PollutionEffectHandler {
     private static final int POISON_POISON_DIVISOR = 4000;
     private static final int VEGETATION_ATTEMPTS_DIVISOR = 25000;
     private static final int MAX_DURATION = 1000;
-    private static final int MAX_ATTEMPTS = 20;
+    private static final int MAX_ATTEMPTS = 400;
     private static final int CHUNK_HEIGHT = 256;
     private static final int CHUNK_SIZE = 16;
 
