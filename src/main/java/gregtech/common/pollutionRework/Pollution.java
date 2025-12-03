@@ -119,7 +119,7 @@ public class Pollution {
         }
 
         setChunkPollution(chunkPos, pollution);
-        sendPollutionUpdateIfNeeded(chunkPos, pollution);
+        PollutionNetworkHandler.sendPollutionUpdate(world, chunkPos, pollution);
     }
 
     private int applyNaturalDecay(int pollution) {
@@ -133,12 +133,6 @@ public class Pollution {
             coord.chunkZPos,
             data -> data.setAmount(pollution),
             pollutedChunks);
-    }
-
-    private void sendPollutionUpdateIfNeeded(ChunkCoordIntPair chunkPos, int pollution) {
-        if (PollutionNetworkHandler.shouldSendUpdate(pollution)) {
-            PollutionNetworkHandler.sendPollutionUpdate(world, chunkPos, pollution);
-        }
     }
 
     public static void addPollution(World world, int chunkX, int chunkZ, int pollution) {
