@@ -51,7 +51,7 @@ public class PollutionSpreadHandler {
         }
     }
 
-    private boolean shouldSpreadPollution(int sourcePollution, int neighborPollution) {
+    private boolean shouldSpreadPollution(long sourcePollution, long neighborPollution) {
         return neighborPollution * SPREAD_RATIO_NUMERATOR < sourcePollution * SPREAD_RATIO_DENOMINATOR;
     }
 
