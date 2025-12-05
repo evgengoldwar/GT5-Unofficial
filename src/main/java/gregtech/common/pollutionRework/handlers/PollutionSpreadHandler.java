@@ -3,12 +3,9 @@ package gregtech.common.pollutionRework.handlers;
 import java.util.Arrays;
 import java.util.Set;
 
-import gregtech.GTMod;
-import gregtech.common.pollutionRework.Pollution;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 
-import gregtech.api.util.GTUtility;
 import gregtech.common.pollutionRework.PollutionData;
 import gregtech.common.pollutionRework.PollutionStorage;
 
@@ -28,11 +25,18 @@ public class PollutionSpreadHandler {
                 offset -> new ChunkCoordIntPair(
                     sourcePos.chunkXPos + offset.chunkXPos,
                     sourcePos.chunkZPos + offset.chunkZPos))
-            .forEach(neighborPos -> spreadPollutionToNeighbor(world, sourcePos, sourcePollution, neighborPos, storage, pollutedChunks));
+            .forEach(
+                neighborPos -> spreadPollutionToNeighbor(
+                    world,
+                    sourcePos,
+                    sourcePollution,
+                    neighborPos,
+                    storage,
+                    pollutedChunks));
     }
 
     private void spreadPollutionToNeighbor(World world, ChunkCoordIntPair sourcePos, int sourcePollution,
-                                           ChunkCoordIntPair neighborPos, PollutionStorage storage, Set<ChunkCoordIntPair> pollutedChunks) {
+        ChunkCoordIntPair neighborPos, PollutionStorage storage, Set<ChunkCoordIntPair> pollutedChunks) {
 
         PollutionData neighborData = storage.get(world, neighborPos);
         int neighborPollution = neighborData.getAmount();
@@ -45,8 +49,7 @@ public class PollutionSpreadHandler {
                     neighborPos.chunkXPos,
                     neighborPos.chunkZPos,
                     data -> data.changeAmount(difference),
-                    pollutedChunks
-                );
+                    pollutedChunks);
             }
         }
     }

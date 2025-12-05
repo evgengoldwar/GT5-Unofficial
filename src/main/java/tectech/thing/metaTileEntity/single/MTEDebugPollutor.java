@@ -32,6 +32,8 @@ import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTETieredMachineBlock;
 import gregtech.api.render.TextureFactory;
 import gregtech.common.pollution.Pollution;
+import gregtech.common.pollutionWork.api.AbstractPollution;
+import gregtech.common.pollutionWork.api.PollutionType;
 import tectech.TecTech;
 import tectech.util.CommonValues;
 
@@ -112,6 +114,8 @@ public class MTEDebugPollutor extends MTETieredMachineBlock implements IAddUIWid
             if (pollution > 0) {
                 Pollution.addPollution(aBaseMetaTileEntity, pollution);
                 gregtech.common.pollutionRework.Pollution.addPollution(aBaseMetaTileEntity, pollution);
+                AbstractPollution.addPollution(aBaseMetaTileEntity, pollution, PollutionType.SMOG);
+                AbstractPollution.addPollution(aBaseMetaTileEntity, pollution * 3, PollutionType.RADIOACTIVITY);
             }
         } else if (aBaseMetaTileEntity.isClientSide() && aBaseMetaTileEntity.isActive()) {
             for (final ForgeDirection side : ForgeDirection.VALID_DIRECTIONS) {

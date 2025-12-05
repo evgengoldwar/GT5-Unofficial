@@ -165,6 +165,7 @@ import gregtech.common.misc.GlobalMetricsCoverDatabase;
 import gregtech.common.misc.WirelessChargerManager;
 import gregtech.common.misc.spaceprojects.SpaceProjectWorldSavedData;
 import gregtech.common.pollution.Pollution;
+import gregtech.common.pollutionWork.api.PollutionType;
 import gregtech.common.powergoggles.PowerGogglesWorldSavedData;
 import gregtech.common.powergoggles.handlers.PowerGogglesEventHandler;
 import gregtech.common.recipes.CALImprintRecipe;
@@ -1067,7 +1068,7 @@ public class GTProxy implements IFuelHandler {
     }
 
     /**
-     * @deprecated use {@link gregtech.api.util.GTModHandler.RecipeBits#BITS_STD}
+     * @deprecated use {@link GTModHandler.RecipeBits#BITS_STD}
      */
     @Deprecated
     public static long tBits = GTModHandler.RecipeBits.BITS_STD;
@@ -1379,7 +1380,7 @@ public class GTProxy implements IFuelHandler {
     }
 
     @SubscribeEvent
-    public void onPlayerJoinEvent(cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent event) {
+    public void onPlayerJoinEvent(PlayerLoggedInEvent event) {
         if (event.player == null || event.player.isClientWorld()
             || !(event.player instanceof EntityPlayerMP mpPlayer)) {
             return;
@@ -2045,6 +2046,10 @@ public class GTProxy implements IFuelHandler {
 
         Pollution.onWorldTick(aEvent);
         gregtech.common.pollutionRework.Pollution.onWorldTick(aEvent);
+
+        for (PollutionType type : PollutionType.values()) {
+            type.callOnWorldTick(aEvent, type);
+        }
     }
 
     @SubscribeEvent

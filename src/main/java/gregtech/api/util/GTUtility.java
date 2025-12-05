@@ -187,6 +187,8 @@ import gregtech.api.threads.RunnableSound;
 import gregtech.common.items.ItemIntegratedCircuit;
 import gregtech.common.ores.OreManager;
 import gregtech.common.pollution.Pollution;
+import gregtech.common.pollutionWork.api.AbstractPollution;
+import gregtech.common.pollutionWork.api.PollutionType;
 import ic2.api.recipe.IRecipeInput;
 import ic2.api.recipe.RecipeInputItemStack;
 import ic2.api.recipe.RecipeInputOreDict;
@@ -2587,6 +2589,25 @@ public class GTUtility {
                 EnumChatFormatting.GREEN + GTUtility.trans("204", "No Pollution in Chunk! HAYO!")
                     + EnumChatFormatting.RESET);
         }
+
+        for (PollutionType type : PollutionType.values()) {
+            if (AbstractPollution.hasPollution(currentChunk, type)) {
+                tList.add(
+                    "Pollution " + type.getPollutionType()
+                        + " in Chunk: "
+                        + EnumChatFormatting.RED
+                        + formatNumbers(AbstractPollution.getPollution(currentChunk, type))
+                        + EnumChatFormatting.RESET
+                        + GTUtility.trans("203", " gibbl"));
+            } else {
+                tList.add(
+                    EnumChatFormatting.GREEN + "No Pollution "
+                        + type.getPollutionType()
+                        + " in Chunk! HAYO!"
+                        + EnumChatFormatting.RESET);
+            }
+        }
+
     }
 
     private static void addUndergroundFluidInfo(EntityPlayer aPlayer, ArrayList<String> tList, Chunk currentChunk) {
