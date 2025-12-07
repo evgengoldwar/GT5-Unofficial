@@ -722,8 +722,8 @@ public class GTClient extends GTProxy {
     }
 
     public void processChunkPollutionPacket(ChunkCoordIntPair chunk, int pollution) {
-        mPollutionRenderer.processPacket(chunk, pollution);
-        mPollutionRendererRework.processPollutionData(chunk, pollution);
+//        mPollutionRenderer.processPacket(chunk, pollution);
+//        mPollutionRendererRework.processPollutionData(chunk, pollution);
     }
 
     @Override

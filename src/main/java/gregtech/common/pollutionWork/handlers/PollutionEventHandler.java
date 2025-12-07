@@ -8,7 +8,7 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import gregtech.api.enums.GTValues;
 import gregtech.api.net.GTPacketPollution;
 import gregtech.common.pollutionRework.handlers.PollutionNetworkHandler;
-import gregtech.common.pollutionWork.api.AbstractPollution;
+import gregtech.common.pollutionWork.api.PollutionApi;
 import gregtech.common.pollutionWork.api.PollutionStorage;
 import gregtech.common.pollutionWork.api.PollutionType;
 
@@ -22,7 +22,7 @@ public class PollutionEventHandler {
 
         World world = event.player.worldObj;
         for (PollutionType type : POLLUTION_TYPES) {
-            PollutionStorage storage = AbstractPollution.getStorage(type);
+            PollutionStorage storage = PollutionApi.getStorage(type);
             if (storage.isCreated(world, event.chunk)) {
                 int pollution = storage.get(world, event.chunk)
                     .getPollutionAmount();
@@ -37,7 +37,7 @@ public class PollutionEventHandler {
     public void onWorldLoad(WorldEvent.Load event) {
         if (!event.world.isRemote) {
             for (PollutionType type : POLLUTION_TYPES) {
-                AbstractPollution.getStorage(type)
+                PollutionApi.getStorage(type)
                     .loadAll(event.world);
             }
         }

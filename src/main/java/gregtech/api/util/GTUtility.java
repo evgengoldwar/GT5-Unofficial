@@ -187,7 +187,7 @@ import gregtech.api.threads.RunnableSound;
 import gregtech.common.items.ItemIntegratedCircuit;
 import gregtech.common.ores.OreManager;
 import gregtech.common.pollution.Pollution;
-import gregtech.common.pollutionWork.api.AbstractPollution;
+import gregtech.common.pollutionWork.api.PollutionApi;
 import gregtech.common.pollutionWork.api.PollutionType;
 import ic2.api.recipe.IRecipeInput;
 import ic2.api.recipe.RecipeInputItemStack;
@@ -2591,12 +2591,12 @@ public class GTUtility {
         }
 
         for (PollutionType type : PollutionType.values()) {
-            if (AbstractPollution.hasPollution(currentChunk, type)) {
+            if (PollutionApi.hasPollution(currentChunk, type)) {
                 tList.add(
                     "Pollution " + type.getPollutionType()
                         + " in Chunk: "
                         + EnumChatFormatting.RED
-                        + formatNumbers(AbstractPollution.getPollution(currentChunk, type))
+                        + formatNumbers(PollutionApi.getPollution(currentChunk, type))
                         + EnumChatFormatting.RESET
                         + GTUtility.trans("203", " gibbl"));
             } else {

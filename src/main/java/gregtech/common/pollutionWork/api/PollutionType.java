@@ -12,25 +12,41 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 public enum PollutionType {
 
-    SMOG("Smog", PollutionSmog::new, PollutionSmog::onWorldTick),
-    RADIOACTIVITY("RadioActivity", PollutionRadioactivity::new, PollutionRadioactivity::onWorldTick);
+    // spotless:off
+    SMOG("Smog",
+        PollutionSmog::new,
+        PollutionSmog::onWorldTick,
+        null),
+    RADIOACTIVITY("RadioActivity",
+        PollutionRadioactivity::new,
+        PollutionRadioactivity::onWorldTick,
+        null);
 
     private final String pollutionType;
     private final Int2ObjectOpenHashMap<AbstractPollution> dimensionWisePollution;
     private final BiFunction<World, PollutionType, AbstractPollution> factory;
     private final BiConsumer<TickEvent.WorldTickEvent, PollutionType> tickMethod;
+    private final AbstractPollutionRenderer pollutionRenderer;
     private PollutionStorage storage;
 
-    PollutionType(String pollutionType, BiFunction<World, PollutionType, AbstractPollution> factory,
-        BiConsumer<TickEvent.WorldTickEvent, PollutionType> tickMethod) {
+    PollutionType(String pollutionType,
+                  BiFunction<World, PollutionType, AbstractPollution> factory,
+                  BiConsumer<TickEvent.WorldTickEvent, PollutionType> tickMethod,
+                  AbstractPollutionRenderer pollutionRenderer) {
         this.pollutionType = pollutionType;
         this.dimensionWisePollution = new Int2ObjectOpenHashMap<>(16);
         this.factory = factory;
         this.tickMethod = tickMethod;
+        this.pollutionRenderer = pollutionRenderer;
     }
+    // spotless:on
 
     public String getPollutionType() {
         return pollutionType;
+    }
+
+    public AbstractPollutionRenderer getPollutionRenderer() {
+        return pollutionRenderer;
     }
 
     public Int2ObjectOpenHashMap<AbstractPollution> getDimensionWisePollution() {

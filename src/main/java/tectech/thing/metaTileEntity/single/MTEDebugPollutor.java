@@ -4,6 +4,7 @@ import static net.minecraft.util.StatCollector.translateToLocal;
 
 import java.util.function.Consumer;
 
+import gregtech.common.pollutionWork.api.PollutionApi;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -112,10 +113,10 @@ public class MTEDebugPollutor extends MTETieredMachineBlock implements IAddUIWid
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
         if (aBaseMetaTileEntity.isServerSide()) {
             if (pollution > 0) {
-                Pollution.addPollution(aBaseMetaTileEntity, pollution);
-                gregtech.common.pollutionRework.Pollution.addPollution(aBaseMetaTileEntity, pollution);
-                AbstractPollution.addPollution(aBaseMetaTileEntity, pollution, PollutionType.SMOG);
-                AbstractPollution.addPollution(aBaseMetaTileEntity, pollution * 3, PollutionType.RADIOACTIVITY);
+//                Pollution.addPollution(aBaseMetaTileEntity, pollution);
+//                gregtech.common.pollutionRework.Pollution.addPollution(aBaseMetaTileEntity, pollution);
+                PollutionApi.addPollution(aBaseMetaTileEntity, pollution, PollutionType.SMOG);
+                PollutionApi.addPollution(aBaseMetaTileEntity, pollution * 3, PollutionType.RADIOACTIVITY);
             }
         } else if (aBaseMetaTileEntity.isClientSide() && aBaseMetaTileEntity.isActive()) {
             for (final ForgeDirection side : ForgeDirection.VALID_DIRECTIONS) {
