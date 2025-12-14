@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
+import gregtech.common.pollutionWork.ApiRenders.PollutionRendererRegistry;
+import gregtech.common.pollutionWork.Api.PollutionType;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
@@ -350,6 +352,8 @@ public class GTClient extends GTProxy {
 
         MinecraftForge.EVENT_BUS.register(mPollutionRendererRework);
         FMLCommonHandler.instance().bus().register(mPollutionRendererRework);
+
+        PollutionRendererRegistry.getInstance().initialize();
 
         MinecraftForge.EVENT_BUS.register(new GTMouseEventHandler());
         MinecraftForge.EVENT_BUS.register(new BlockOverlayRenderer());
@@ -721,9 +725,10 @@ public class GTClient extends GTProxy {
                 && player.isSneaking());
     }
 
-    public void processChunkPollutionPacket(ChunkCoordIntPair chunk, int pollution) {
+    public void processChunkPollutionPacket(PollutionType type, ChunkCoordIntPair chunk, int pollution) {
 //        mPollutionRenderer.processPacket(chunk, pollution);
 //        mPollutionRendererRework.processPollutionData(chunk, pollution);
+        PollutionRendererRegistry.getInstance().processPollutionData(type, chunk, pollution);
     }
 
     @Override

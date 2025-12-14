@@ -1,13 +1,19 @@
-package gregtech.common.pollutionWork.api;
+package gregtech.common.pollutionWork.Api;
 
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import gregtech.common.pollutionWork.ApiRenders.AbstractPollutionRenderer;
+import gregtech.common.pollutionWork.PollutionTypes.Radioactivity.PollutionRadioactivityRenderer;
+import gregtech.common.pollutionWork.PollutionTypes.Smog.PollutionSmogRenderer;
 import net.minecraft.world.World;
 
 import cpw.mods.fml.common.gameevent.TickEvent;
-import gregtech.common.pollutionWork.PollutionRadioactivity;
-import gregtech.common.pollutionWork.PollutionSmog;
+import gregtech.common.pollutionWork.PollutionTypes.Radioactivity.PollutionRadioactivity;
+import gregtech.common.pollutionWork.PollutionTypes.Smog.PollutionSmog;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 public enum PollutionType {
@@ -16,37 +22,33 @@ public enum PollutionType {
     SMOG("Smog",
         PollutionSmog::new,
         PollutionSmog::onWorldTick,
-        null),
+        PollutionSmogRenderer::new),
     RADIOACTIVITY("RadioActivity",
         PollutionRadioactivity::new,
         PollutionRadioactivity::onWorldTick,
-        null);
+        PollutionRadioactivityRenderer::new);
 
     private final String pollutionType;
     private final Int2ObjectOpenHashMap<AbstractPollution> dimensionWisePollution;
     private final BiFunction<World, PollutionType, AbstractPollution> factory;
     private final BiConsumer<TickEvent.WorldTickEvent, PollutionType> tickMethod;
-    private final AbstractPollutionRenderer pollutionRenderer;
+    private final Function<PollutionType, AbstractPollutionRenderer> rendererFactory;
     private PollutionStorage storage;
 
     PollutionType(String pollutionType,
                   BiFunction<World, PollutionType, AbstractPollution> factory,
                   BiConsumer<TickEvent.WorldTickEvent, PollutionType> tickMethod,
-                  AbstractPollutionRenderer pollutionRenderer) {
+                  Function<PollutionType, AbstractPollutionRenderer> rendererFactory) {
         this.pollutionType = pollutionType;
         this.dimensionWisePollution = new Int2ObjectOpenHashMap<>(16);
         this.factory = factory;
         this.tickMethod = tickMethod;
-        this.pollutionRenderer = pollutionRenderer;
+        this.rendererFactory = rendererFactory;
     }
     // spotless:on
 
     public String getPollutionType() {
         return pollutionType;
-    }
-
-    public AbstractPollutionRenderer getPollutionRenderer() {
-        return pollutionRenderer;
     }
 
     public Int2ObjectOpenHashMap<AbstractPollution> getDimensionWisePollution() {
@@ -66,5 +68,11 @@ public enum PollutionType {
             storage = new PollutionStorage(this);
         }
         return storage;
+    }
+
+    @SideOnly(Side.CLIENT)
+    public AbstractPollutionRenderer createRenderer() {
+        if (rendererFactory == null) return null;
+        return rendererFactory.apply(this);
     }
 }

@@ -1,9 +1,9 @@
-package gregtech.common.pollutionWork;
+package gregtech.common.pollutionWork.PollutionTypes.Radioactivity;
 
 import net.minecraft.world.World;
 
-import gregtech.common.pollutionWork.api.AbstractPollution;
-import gregtech.common.pollutionWork.api.PollutionType;
+import gregtech.common.pollutionWork.Api.AbstractPollution;
+import gregtech.common.pollutionWork.Api.PollutionType;
 
 public class PollutionRadioactivity extends AbstractPollution {
 

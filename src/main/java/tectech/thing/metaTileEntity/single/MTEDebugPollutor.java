@@ -4,7 +4,7 @@ import static net.minecraft.util.StatCollector.translateToLocal;
 
 import java.util.function.Consumer;
 
-import gregtech.common.pollutionWork.api.PollutionApi;
+import gregtech.common.pollutionWork.Api.PollutionApi;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -32,9 +32,7 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTETieredMachineBlock;
 import gregtech.api.render.TextureFactory;
-import gregtech.common.pollution.Pollution;
-import gregtech.common.pollutionWork.api.AbstractPollution;
-import gregtech.common.pollutionWork.api.PollutionType;
+import gregtech.common.pollutionWork.Api.PollutionType;
 import tectech.TecTech;
 import tectech.util.CommonValues;
 
@@ -116,7 +114,7 @@ public class MTEDebugPollutor extends MTETieredMachineBlock implements IAddUIWid
 //                Pollution.addPollution(aBaseMetaTileEntity, pollution);
 //                gregtech.common.pollutionRework.Pollution.addPollution(aBaseMetaTileEntity, pollution);
                 PollutionApi.addPollution(aBaseMetaTileEntity, pollution, PollutionType.SMOG);
-                PollutionApi.addPollution(aBaseMetaTileEntity, pollution * 3, PollutionType.RADIOACTIVITY);
+//                PollutionApi.addPollution(aBaseMetaTileEntity, pollution * 3, PollutionType.RADIOACTIVITY);
             }
         } else if (aBaseMetaTileEntity.isClientSide() && aBaseMetaTileEntity.isActive()) {
             for (final ForgeDirection side : ForgeDirection.VALID_DIRECTIONS) {

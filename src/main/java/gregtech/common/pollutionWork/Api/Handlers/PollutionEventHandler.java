@@ -1,5 +1,6 @@
-package gregtech.common.pollutionWork.handlers;
+package gregtech.common.pollutionWork.Api.Handlers;
 
+import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.ChunkWatchEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -8,9 +9,9 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import gregtech.api.enums.GTValues;
 import gregtech.api.net.GTPacketPollution;
 import gregtech.common.pollutionRework.handlers.PollutionNetworkHandler;
-import gregtech.common.pollutionWork.api.PollutionApi;
-import gregtech.common.pollutionWork.api.PollutionStorage;
-import gregtech.common.pollutionWork.api.PollutionType;
+import gregtech.common.pollutionWork.Api.PollutionApi;
+import gregtech.common.pollutionWork.Api.PollutionStorage;
+import gregtech.common.pollutionWork.Api.PollutionType;
 
 public class PollutionEventHandler {
 
@@ -21,14 +22,18 @@ public class PollutionEventHandler {
         if (event.player == null || event.player.worldObj == null) return;
 
         World world = event.player.worldObj;
+        ChunkCoordIntPair chunkCord = new ChunkCoordIntPair(event.chunk.chunkXPos, event.chunk.chunkZPos);
+
         for (PollutionType type : POLLUTION_TYPES) {
             PollutionStorage storage = PollutionApi.getStorage(type);
-            if (storage.isCreated(world, event.chunk)) {
-                int pollution = storage.get(world, event.chunk)
-                    .getPollutionAmount();
-                if (PollutionNetworkHandler.shouldSendUpdate(pollution)) {
-                    GTValues.NW.sendToPlayer(new GTPacketPollution(event.chunk, pollution), event.player);
-                }
+            int pollution = 0;
+
+            if (storage.isCreated(world, chunkCord)) {
+                pollution = storage.get(world, chunkCord).getPollutionAmount();
+            }
+
+            if (pollution > 0) {
+                GTValues.NW.sendToPlayer(new GTPacketPollution(type, chunkCord, pollution), event.player);
             }
         }
     }

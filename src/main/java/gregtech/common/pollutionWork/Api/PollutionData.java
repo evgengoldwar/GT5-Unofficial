@@ -1,4 +1,4 @@
-package gregtech.common.pollutionWork.api;
+package gregtech.common.pollutionWork.Api;
 
 import gregtech.api.util.GTChunkAssociatedData;
 import gregtech.api.util.GTUtility;

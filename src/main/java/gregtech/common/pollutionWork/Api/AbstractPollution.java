@@ -1,17 +1,17 @@
-package gregtech.common.pollutionWork.api;
+package gregtech.common.pollutionWork.Api;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import gregtech.common.pollutionWork.Api.Handlers.PollutionEffectHandler;
+import gregtech.common.pollutionWork.Api.Handlers.PollutionEventHandler;
+import gregtech.common.pollutionWork.Api.Handlers.PollutionNetworkHandler;
+import gregtech.common.pollutionWork.Api.Handlers.PollutionSpreadHandler;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 
 import cpw.mods.fml.common.gameevent.TickEvent;
-import gregtech.common.pollutionWork.handlers.PollutionEffectHandler;
-import gregtech.common.pollutionWork.handlers.PollutionEventHandler;
-import gregtech.common.pollutionWork.handlers.PollutionNetworkHandler;
-import gregtech.common.pollutionWork.handlers.PollutionSpreadHandler;
 
 public abstract class AbstractPollution {
 

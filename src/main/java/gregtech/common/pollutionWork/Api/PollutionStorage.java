@@ -1,4 +1,4 @@
-package gregtech.common.pollutionWork.api;
+package gregtech.common.pollutionWork.Api;
 
 import java.io.DataInput;
 import java.io.DataOutput;

@@ -165,7 +165,7 @@ import gregtech.common.misc.GlobalMetricsCoverDatabase;
 import gregtech.common.misc.WirelessChargerManager;
 import gregtech.common.misc.spaceprojects.SpaceProjectWorldSavedData;
 import gregtech.common.pollution.Pollution;
-import gregtech.common.pollutionWork.api.PollutionType;
+import gregtech.common.pollutionWork.Api.PollutionType;
 import gregtech.common.powergoggles.PowerGogglesWorldSavedData;
 import gregtech.common.powergoggles.handlers.PowerGogglesEventHandler;
 import gregtech.common.recipes.CALImprintRecipe;

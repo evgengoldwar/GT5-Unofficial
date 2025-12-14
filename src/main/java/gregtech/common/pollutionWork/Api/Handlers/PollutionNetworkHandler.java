@@ -1,5 +1,6 @@
-package gregtech.common.pollutionWork.handlers;
+package gregtech.common.pollutionWork.Api.Handlers;
 
+import gregtech.common.pollutionWork.Api.PollutionType;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 
@@ -19,8 +20,10 @@ public class PollutionNetworkHandler {
             return;
         }
 
-        NetworkRegistry.TargetPoint point = createTargetPoint(world, chunkPos);
-        GTValues.NW.sendToAllAround(new GTPacketPollution(chunkPos, pollution), point);
+        for (PollutionType type : PollutionType.values()) {
+            NetworkRegistry.TargetPoint point = createTargetPoint(world, chunkPos);
+            GTValues.NW.sendToAllAround(new GTPacketPollution(type, chunkPos, pollution), point);
+        }
     }
 
     public static boolean shouldSendUpdate(int pollution) {

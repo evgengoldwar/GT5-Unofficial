@@ -1,4 +1,4 @@
-package gregtech.common.pollutionWork.api;
+package gregtech.common.pollutionWork.Api;
 
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;

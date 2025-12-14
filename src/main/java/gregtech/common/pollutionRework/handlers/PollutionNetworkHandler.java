@@ -20,7 +20,7 @@ public class PollutionNetworkHandler {
         }
 
         NetworkRegistry.TargetPoint point = createTargetPoint(world, chunkPos);
-        GTValues.NW.sendToAllAround(new GTPacketPollution(chunkPos, pollution), point);
+//        GTValues.NW.sendToAllAround(new GTPacketPollution(chunkPos, pollution), point);
     }
 
     public static boolean shouldSendUpdate(int pollution) {

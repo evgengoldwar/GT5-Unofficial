@@ -264,7 +264,7 @@ public class Pollution {
                     64,
                     (actualPos.chunkZPos << 4),
                     256);
-                GTValues.NW.sendToAllAround(new GTPacketPollution(actualPos, tPollution), point);
+//                GTValues.NW.sendToAllAround(new GTPacketPollution(actualPos, tPollution), point);
             }
         }
     }
@@ -445,8 +445,10 @@ public class Pollution {
             if (STORAGE.isCreated(world, event.chunk)) {
                 int pollution = STORAGE.get(world, event.chunk)
                     .getAmount();
-                if (pollution > POLLUTIONPACKET_MINVALUE)
-                    GTValues.NW.sendToPlayer(new GTPacketPollution(event.chunk, pollution), event.player);
+                if (pollution > POLLUTIONPACKET_MINVALUE) {
+
+                }
+//                    GTValues.NW.sendToPlayer(new GTPacketPollution(event.chunk, pollution), event.player);
             }
         }
 

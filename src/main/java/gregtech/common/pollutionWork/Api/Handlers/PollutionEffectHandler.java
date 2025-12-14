@@ -1,4 +1,4 @@
-package gregtech.common.pollutionWork.handlers;
+package gregtech.common.pollutionWork.Api.Handlers;
 
 import static gregtech.api.objects.XSTR.XSTR_INSTANCE;
 

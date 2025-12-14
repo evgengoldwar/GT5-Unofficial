@@ -1,4 +1,4 @@
-package gregtech.common.pollutionWork.handlers;
+package gregtech.common.pollutionWork.Api.Handlers;
 
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -6,8 +6,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 
-import gregtech.common.pollutionWork.api.PollutionData;
-import gregtech.common.pollutionWork.api.PollutionStorage;
+import gregtech.common.pollutionWork.Api.PollutionData;
+import gregtech.common.pollutionWork.Api.PollutionStorage;
 
 public class PollutionSpreadHandler {
 

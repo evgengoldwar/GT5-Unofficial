@@ -23,7 +23,7 @@ public class PollutionEventHandler {
             int pollution = STORAGE.get(world, event.chunk)
                 .getAmount();
             if (PollutionNetworkHandler.shouldSendUpdate(pollution)) {
-                GTValues.NW.sendToPlayer(new GTPacketPollution(event.chunk, pollution), event.player);
+//                GTValues.NW.sendToPlayer(new GTPacketPollution(event.chunk, pollution), event.player);
             }
         }
     }

@@ -1,17 +1,14 @@
 package gregtech.mixin.mixins.early.minecraft.pollution;
 
+import gregtech.common.pollutionWork.ApiRenders.PollutionRendererRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDoublePlant;
-import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.RenderBlocks;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-
-import gregtech.common.pollutionRework.ColorOverrideTypeRework;
-import gregtech.common.pollutionRework.Pollution;
 
 @Mixin(RenderBlocks.class)
 public class MixinRenderBlocks_PollutionWithoutOptifine {
@@ -22,9 +19,7 @@ public class MixinRenderBlocks_PollutionWithoutOptifine {
             value = "INVOKE",
             target = "Lnet/minecraft/block/Block;colorMultiplier(Lnet/minecraft/world/IBlockAccess;III)I"))
     private int gt5u$pollutionStandardBlock(int color, Block block, int blockX, int blockY, int blockZ) {
-        ColorOverrideTypeRework type = Pollution.standardBlocks.matchesID(block);
-        if (type == null) return color;
-        return type.getColor(color, blockX, blockZ);
+        return PollutionRendererRegistry.getInstance().getColorForBlock(block, color, blockX, blockZ);
     }
 
     @ModifyExpressionValue(
@@ -33,11 +28,7 @@ public class MixinRenderBlocks_PollutionWithoutOptifine {
             value = "INVOKE",
             target = "Lnet/minecraft/block/Block;colorMultiplier(Lnet/minecraft/world/IBlockAccess;III)I"))
     private int gt5u$pollutionBlockLiquid(int color, Block block, int blockX, int blockY, int blockZ) {
-        ColorOverrideTypeRework type = Pollution.liquidBlocks.matchesID(block);
-        if (type == null || block.getMaterial() != Material.water) {
-            return color;
-        }
-        return type.getColor(color, blockX, blockZ);
+        return PollutionRendererRegistry.getInstance().getColorForBlock(block, color, blockX, blockZ);
     }
 
     @ModifyExpressionValue(
@@ -46,9 +37,7 @@ public class MixinRenderBlocks_PollutionWithoutOptifine {
             value = "INVOKE",
             target = "Lnet/minecraft/block/BlockDoublePlant;colorMultiplier(Lnet/minecraft/world/IBlockAccess;III)I"))
     private int gt5u$pollutionBlockDoublePlant(int color, BlockDoublePlant block, int blockX, int blockY, int blockZ) {
-        ColorOverrideTypeRework type = Pollution.doublePlants.matchesID(block);
-        if (type == null) return color;
-        return type.getColor(color, blockX, blockZ);
+        return PollutionRendererRegistry.getInstance().getColorForBlock(block, color, blockX, blockZ);
     }
 
     @ModifyExpressionValue(
@@ -57,9 +46,7 @@ public class MixinRenderBlocks_PollutionWithoutOptifine {
             value = "INVOKE",
             target = "Lnet/minecraft/block/Block;colorMultiplier(Lnet/minecraft/world/IBlockAccess;III)I"))
     private int gt5u$pollutionCrossedSquares(int color, Block block, int blockX, int blockY, int blockZ) {
-        ColorOverrideTypeRework type = Pollution.crossedSquares.matchesID(block);
-        if (type == null) return color;
-        return type.getColor(color, blockX, blockZ);
+        return PollutionRendererRegistry.getInstance().getColorForBlock(block, color, blockX, blockZ);
     }
 
     @ModifyExpressionValue(
@@ -68,8 +55,6 @@ public class MixinRenderBlocks_PollutionWithoutOptifine {
             value = "INVOKE",
             target = "Lnet/minecraft/block/Block;colorMultiplier(Lnet/minecraft/world/IBlockAccess;III)I"))
     private int gt5u$pollutionBlockVine(int color, Block block, int blockX, int blockY, int blockZ) {
-        ColorOverrideTypeRework type = Pollution.blockVine.matchesID(block);
-        if (type == null) return color;
-        return type.getColor(color, blockX, blockZ);
+        return PollutionRendererRegistry.getInstance().getColorForBlock(block, color, blockX, blockZ);
     }
 }
