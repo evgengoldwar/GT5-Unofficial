@@ -22,9 +22,7 @@ public class PollutionEffectHandler {
     private final int POISON_HUNGER_DIVISOR = 500000;
     private final int POISON_CONFUSION_DIVISOR = 2000;
     private final int POISON_POISON_DIVISOR = 4000;
-    private final int VEGETATION_ATTEMPTS_DIVISOR = 25000;
     private final int MAX_DURATION = 1000;
-    private final int MAX_ATTEMPTS = 400;
     private final int CHUNK_HEIGHT = 256;
     private final int CHUNK_SIZE = 16;
     private List<Potion> potionList = new ArrayList<>();
@@ -42,10 +40,6 @@ public class PollutionEffectHandler {
         entities.stream()
             .filter(this::shouldApplyEffects)
             .forEach(entity -> processEntityEffects(entity, pollution));
-
-        // if (pollution > GTMod.proxy.mPollutionVegetationLimit) {
-        // damageVegetation(world, chunkPos, pollution);
-        // }
     }
 
     private AxisAlignedBB createChunkBoundingBox(ChunkCoordIntPair chunkPos) {
@@ -111,19 +105,5 @@ public class PollutionEffectHandler {
     // };
     //
     // entity.addPotionEffect(effect);
-    // }
-
-    // private void damageVegetation(World world, ChunkCoordIntPair chunkPos, int pollution) {
-    // int attempts = Math.min(MAX_ATTEMPTS, pollution / VEGETATION_ATTEMPTS_DIVISOR);
-    // boolean sourRain = pollution > GTMod.proxy.mPollutionSourRainLimit;
-    //
-    // for (int i = 0; i < attempts; i++) {
-    // int baseX = chunkPos.chunkXPos << 4;
-    // int baseZ = chunkPos.chunkZPos << 4;
-    // int x = baseX + XSTR_INSTANCE.nextInt(CHUNK_SIZE);
-    // int y = 60 + (-i + XSTR_INSTANCE.nextInt(i * 2 + 1));
-    // int z = baseZ + XSTR_INSTANCE.nextInt(CHUNK_SIZE);
-    // PollutionBlockDamager.damageBlock(world, x, y, z, sourRain);
-    // }
     // }
 }

@@ -1009,7 +1009,7 @@ public class GTProxy implements IFuelHandler {
     public void onInitialization(FMLInitializationEvent event) {
         GTLog.out.println("GTMod: Beginning Load-Phase.");
 
-        PollutionTypes.init();
+//        PollutionTypes.init();
 
         // Clay buckets, which don't get registered until Iguana Tweaks pre-init
         if (IguanaTweaksTinkerConstruct.isModLoaded()) {

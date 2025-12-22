@@ -3,6 +3,8 @@ package gregtech.common.pollutionRework.Api;
 import java.util.Collections;
 import java.util.List;
 
+import it.unimi.dsi.fastutil.Pair;
+import net.minecraft.block.Block;
 import net.minecraft.potion.Potion;
 
 import gregtech.common.pollutionRework.Data.PollutionStorage;
@@ -10,27 +12,55 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
 public class PollutionType {
 
+    // region Variables
+    // Abstract variables
     private final String name;
     private final int spreadThreshold;
     private final int cycleLen;
     private final float naturalDecayRate;
     private final List<Potion> potionList;
 
+    // DamageBLock variables
+    private final int pollutionDamageStart;
+    private final int maxAttempts;
+    private final int vegetationAttemptsDivisor;
+    private final List<Pair<Block, Block>> listPairBlocksReplace;
+    private final List<Block> listBlockDestroy;
+
     private final PollutionStorage storage;
     private final Int2ObjectOpenHashMap<AbstractPollution> dimensionWisePollution = new Int2ObjectOpenHashMap<>(16);
+    // endregion
 
-    public PollutionType(String name, int spreadThreshold, int cycleLen, float naturalDecayRate,
-        List<Potion> potionList) {
+    // region Constructors
+    // spotless:off
+    public PollutionType(String name,
+                         int spreadThreshold,
+                         int cycleLen,
+                         float naturalDecayRate,
+                         List<Potion> potionList,
+                         int pollutionDamageStart,
+                         int maxAttempts,
+                         int vegetationAttemptsDivisor,
+                         List<Pair<Block, Block>> listPairBlocksReplace,
+                         List<Block> listBlockDestroy) {
+
         this.name = name;
         this.spreadThreshold = spreadThreshold;
         this.cycleLen = cycleLen;
         this.naturalDecayRate = naturalDecayRate;
         this.potionList = potionList;
+        this.pollutionDamageStart = pollutionDamageStart;
+        this.maxAttempts = maxAttempts;
+        this.vegetationAttemptsDivisor = vegetationAttemptsDivisor;
+        this.listPairBlocksReplace = listPairBlocksReplace;
+        this.listBlockDestroy = listBlockDestroy;
 
         this.storage = new PollutionStorage(this);
-
     }
+    // spotless:on
+    // endregion
 
+    // region Getters
     public String getName() {
         return name;
     }
@@ -59,7 +89,30 @@ public class PollutionType {
         return Collections.unmodifiableList(potionList);
     }
 
+    public int getPollutionDamageStart() {
+        return pollutionDamageStart;
+    }
+
+    public int getMaxAttempts() {
+        return maxAttempts;
+    }
+
+    public int getVegetationAttemptsDivisor() {
+        return vegetationAttemptsDivisor;
+    }
+
+    public List<Pair<Block, Block>> getListPairBlocksReplace() {
+        return listPairBlocksReplace;
+    }
+
+    public List<Block> getListBlockDestroy() {
+        return listBlockDestroy;
+    }
+    // endregion
+
+    // region Others methods
     public AbstractPollution createPollutionInstance() {
         return new Pollution(this);
     }
+    // endregion
 }

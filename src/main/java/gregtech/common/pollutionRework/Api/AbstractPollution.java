@@ -13,10 +13,7 @@ import net.minecraftforge.common.MinecraftForge;
 
 import cpw.mods.fml.common.gameevent.TickEvent;
 import gregtech.common.pollutionRework.Data.PollutionData;
-import gregtech.common.pollutionRework.Handlers.PollutionEffectHandler;
-import gregtech.common.pollutionRework.Handlers.PollutionEventHandler;
-import gregtech.common.pollutionRework.Handlers.PollutionNetworkHandler;
-import gregtech.common.pollutionRework.Handlers.PollutionSpreadHandler;
+import gregtech.common.pollutionRework.Handlers.*;
 
 public abstract class AbstractPollution {
 
@@ -38,7 +35,8 @@ public abstract class AbstractPollution {
     protected final PollutionType pollutionType;
     private final PollutionSpreadHandler SPREAD_HANDLER = new PollutionSpreadHandler();
     private static final PollutionEventHandler EVENT_HANDLER = new PollutionEventHandler();
-    private PollutionEffectHandler EFFECT_HANDLER;
+    private final PollutionEffectHandler EFFECT_HANDLER;
+    private final PollutionBlockDamager DAMAGE_HANDLER;
     // endregion
 
     // region Static
@@ -56,6 +54,12 @@ public abstract class AbstractPollution {
         // .loadAll(world);
         // }
         EFFECT_HANDLER = new PollutionEffectHandler(pollutionType.getPotionList());
+        DAMAGE_HANDLER = new PollutionBlockDamager(
+            pollutionType.getPollutionDamageStart(),
+            pollutionType.getMaxAttempts(),
+            pollutionType.getVegetationAttemptsDivisor(),
+            pollutionType.getListPairBlocksReplace(),
+            pollutionType.getListBlockDestroy());
     }
     // endregion
 
@@ -113,13 +117,14 @@ public abstract class AbstractPollution {
         AtomicInteger pollution = new AtomicInteger((int) applyNaturalDecay(data.getPollutionAmount()));
 
         if (pollution.get() > getSpreadThreshold()) {
-            // SPREAD_HANDLER.handlePollutionSpread(
-            // world,
-            // chunkPos,
-            // pollution,
-            // PollutionApi.getStorage(pollutionType),
-            // pollutedChunks);
+            SPREAD_HANDLER.handlePollutionSpread(
+                world,
+                chunkPos,
+                pollution,
+                PollutionApi.getStorage(pollutionType),
+                pollutedChunks);
             EFFECT_HANDLER.applyPotionEffects(world, chunkPos, pollution.get());
+            DAMAGE_HANDLER.applyDamageEffects(world, chunkPos, pollution.get());
         }
 
         setChunkPollution(world, chunkPos, pollution.get());
