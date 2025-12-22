@@ -1,4 +1,4 @@
-package gregtech.common.pollutionWork.Api;
+package gregtech.common.pollutionRework.Data;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -14,13 +14,15 @@ import org.jetbrains.annotations.NotNull;
 import com.gtnewhorizons.angelica.shadow.javax.annotation.Nullable;
 
 import gregtech.api.util.GTChunkAssociatedData;
+import gregtech.common.pollutionRework.Api.AbstractPollution;
+import gregtech.common.pollutionRework.Api.PollutionType;
 
 public class PollutionStorage extends GTChunkAssociatedData<PollutionData> {
 
     private final PollutionType pollutionType;
 
     public PollutionStorage(PollutionType pollutionType) {
-        super("Pollution_" + pollutionType.getPollutionType(), PollutionData.class, 64, (byte) 0, false);
+        super("Pollution_" + pollutionType.getName(), PollutionData.class, 64, (byte) 0, false);
         this.pollutionType = pollutionType;
     }
 
@@ -80,6 +82,6 @@ public class PollutionStorage extends GTChunkAssociatedData<PollutionData> {
 
     private AbstractPollution getPollutionManager(World world) {
         return pollutionType.getDimensionWisePollution()
-            .computeIfAbsent(world.provider.dimensionId, dimensionId -> pollutionType.createPollutionInstance(world));
+            .computeIfAbsent(world.provider.dimensionId, dimensionId -> pollutionType.createPollutionInstance());
     }
 }

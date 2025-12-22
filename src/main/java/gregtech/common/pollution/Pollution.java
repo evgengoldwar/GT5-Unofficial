@@ -37,12 +37,10 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import gregtech.GTMod;
-import gregtech.api.enums.GTValues;
 import gregtech.api.hazards.HazardProtection;
 import gregtech.api.interfaces.ICleanroom;
 import gregtech.api.interfaces.ICleanroomReceiver;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.net.GTPacketPollution;
 import gregtech.api.util.GTChunkAssociatedData;
 import gregtech.api.util.GTUtility;
 
@@ -264,7 +262,7 @@ public class Pollution {
                     64,
                     (actualPos.chunkZPos << 4),
                     256);
-//                GTValues.NW.sendToAllAround(new GTPacketPollution(actualPos, tPollution), point);
+                // GTValues.NW.sendToAllAround(new GTPacketPollution(actualPos, tPollution), point);
             }
         }
     }
@@ -448,7 +446,7 @@ public class Pollution {
                 if (pollution > POLLUTIONPACKET_MINVALUE) {
 
                 }
-//                    GTValues.NW.sendToPlayer(new GTPacketPollution(event.chunk, pollution), event.player);
+                // GTValues.NW.sendToPlayer(new GTPacketPollution(event.chunk, pollution), event.player);
             }
         }
 

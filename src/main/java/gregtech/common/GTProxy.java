@@ -165,7 +165,10 @@ import gregtech.common.misc.GlobalMetricsCoverDatabase;
 import gregtech.common.misc.WirelessChargerManager;
 import gregtech.common.misc.spaceprojects.SpaceProjectWorldSavedData;
 import gregtech.common.pollution.Pollution;
-import gregtech.common.pollutionWork.Api.PollutionType;
+import gregtech.common.pollutionRework.Api.AbstractPollution;
+import gregtech.common.pollutionRework.Api.PollutionRegistry;
+import gregtech.common.pollutionRework.Api.PollutionType;
+import gregtech.common.pollutionRework.PollutionTypes;
 import gregtech.common.powergoggles.PowerGogglesWorldSavedData;
 import gregtech.common.powergoggles.handlers.PowerGogglesEventHandler;
 import gregtech.common.recipes.CALImprintRecipe;
@@ -690,8 +693,6 @@ public class GTProxy implements IFuelHandler {
 
     private final ConcurrentMap<UUID, GTClientPreference> mClientPrefernces = new ConcurrentHashMap<>();
     public final Int2ObjectOpenHashMap<Pollution> dimensionWisePollution = new Int2ObjectOpenHashMap<>(16);
-    public final Int2ObjectOpenHashMap<gregtech.common.pollutionRework.Pollution> dimensionWisePollutionRework = new Int2ObjectOpenHashMap<>(
-        16);
     /** A fast lookup for players. */
     private Map<UUID, EntityPlayerMP> PLAYERS_BY_UUID;
     private Map<String, UUID> UUID_BY_NAME;
@@ -1007,6 +1008,8 @@ public class GTProxy implements IFuelHandler {
 
     public void onInitialization(FMLInitializationEvent event) {
         GTLog.out.println("GTMod: Beginning Load-Phase.");
+
+        PollutionTypes.init();
 
         // Clay buckets, which don't get registered until Iguana Tweaks pre-init
         if (IguanaTweaksTinkerConstruct.isModLoaded()) {
@@ -2045,11 +2048,18 @@ public class GTProxy implements IFuelHandler {
         }
 
         Pollution.onWorldTick(aEvent);
-        gregtech.common.pollutionRework.Pollution.onWorldTick(aEvent);
+        // gregtech.common.pollutionRework.Pollution.onWorldTick(aEvent);
 
-        for (PollutionType type : PollutionType.values()) {
-            type.callOnWorldTick(aEvent, type);
+        // for (PollutionType type : PollutionType.values()) {
+        // type.callOnWorldTick(aEvent, type);
+        // }
+
+        Map<String, PollutionType> POLLUTIONS = PollutionRegistry.getAllPollutions();
+
+        for (PollutionType pollutionType : POLLUTIONS.values()) {
+            AbstractPollution.onWorldTick(aEvent, pollutionType);
         }
+
     }
 
     @SubscribeEvent

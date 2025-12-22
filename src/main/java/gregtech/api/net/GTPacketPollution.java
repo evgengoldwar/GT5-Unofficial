@@ -1,12 +1,13 @@
 package gregtech.api.net;
 
-import gregtech.common.pollutionWork.Api.PollutionType;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.IBlockAccess;
 
 import com.google.common.io.ByteArrayDataInput;
 
 import gregtech.GTMod;
+import gregtech.common.pollutionRework.Api.PollutionRegistry;
+import gregtech.common.pollutionRework.Api.PollutionType;
 import io.netty.buffer.ByteBuf;
 
 public class GTPacketPollution extends GTPacket {
@@ -28,22 +29,29 @@ public class GTPacketPollution extends GTPacket {
 
     @Override
     public void encode(ByteBuf aOut) {
-        aOut.writeInt(type.ordinal())
-            .writeInt(chunk.chunkXPos)
+        byte[] nameBytes = type.getName()
+            .getBytes();
+        aOut.writeInt(nameBytes.length);
+        aOut.writeBytes(nameBytes);
+
+        aOut.writeInt(chunk.chunkXPos)
             .writeInt(chunk.chunkZPos)
             .writeInt(pollution);
     }
 
     @Override
     public GTPacket decode(ByteArrayDataInput aData) {
-        int typeOrdinal = aData.readInt();
-        PollutionType type;
+        int nameLength = aData.readInt();
+        byte[] nameBytes = new byte[nameLength];
+        aData.readFully(nameBytes);
 
-        try {
-            type = PollutionType.values()[typeOrdinal];
-        } catch (ArrayIndexOutOfBoundsException e) {
-            GTMod.GT_FML_LOGGER.error("Received invalid pollution type ordinal: {}", typeOrdinal);
-            type = PollutionType.SMOG;
+        String typeName = new String(nameBytes);
+
+        PollutionType type = PollutionRegistry.getPollutionType(typeName);
+
+        if (type == null) {
+            GTMod.GT_FML_LOGGER.error("Received unknown pollution type: {}", typeName);
+            return null;
         }
 
         ChunkCoordIntPair chunk = new ChunkCoordIntPair(aData.readInt(), aData.readInt());

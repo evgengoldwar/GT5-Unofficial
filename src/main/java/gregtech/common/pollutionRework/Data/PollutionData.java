@@ -1,9 +1,9 @@
-package gregtech.common.pollutionRework;
+package gregtech.common.pollutionRework.Data;
 
 import gregtech.api.util.GTChunkAssociatedData;
 import gregtech.api.util.GTUtility;
 
-public final class PollutionData implements GTChunkAssociatedData.IData {
+public class PollutionData implements GTChunkAssociatedData.IData {
 
     private int pollutionAmount;
 
@@ -15,15 +15,15 @@ public final class PollutionData implements GTChunkAssociatedData.IData {
         this.pollutionAmount = calculateSafeAmount(initialAmount);
     }
 
-    public int getAmount() {
+    public int getPollutionAmount() {
         return pollutionAmount;
     }
 
-    public void setAmount(int newAmount) {
-        this.pollutionAmount = calculateSafeAmount(newAmount);
+    public void setPollutionAmount(int pollutionAmount) {
+        this.pollutionAmount = pollutionAmount;
     }
 
-    public void changeAmount(int delta) {
+    public void changePollutionAmount(int delta) {
         this.pollutionAmount = calculateSafeAmount(GTUtility.safeInt(pollutionAmount + (long) delta));
     }
 

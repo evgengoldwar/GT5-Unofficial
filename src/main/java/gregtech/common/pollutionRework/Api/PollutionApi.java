@@ -1,4 +1,4 @@
-package gregtech.common.pollutionWork.Api;
+package gregtech.common.pollutionRework.Api;
 
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
@@ -10,6 +10,7 @@ import gregtech.GTMod;
 import gregtech.api.interfaces.ICleanroom;
 import gregtech.api.interfaces.ICleanroomReceiver;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
+import gregtech.common.pollutionRework.Data.PollutionStorage;
 
 public class PollutionApi {
 

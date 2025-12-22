@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-import gregtech.common.pollutionWork.ApiRenders.PollutionRendererRegistry;
-import gregtech.common.pollutionWork.Api.PollutionType;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
@@ -102,7 +100,7 @@ import gregtech.common.misc.GTCapeCommand;
 import gregtech.common.misc.GTPowerfailCommandClient;
 import gregtech.common.pollution.Pollution;
 import gregtech.common.pollution.PollutionRenderer;
-import gregtech.common.pollutionRework.PollutionRendererRework;
+import gregtech.common.pollutionRework.Api.PollutionType;
 import gregtech.common.powergoggles.PowerGogglesCommand;
 import gregtech.common.render.BaseMetaTileEntityRenderer;
 import gregtech.common.render.BlackholeRenderer;
@@ -136,7 +134,6 @@ import paulscode.sound.SoundSystemException;
 public class GTClient extends GTProxy {
 
     public final PollutionRenderer mPollutionRenderer = new PollutionRenderer();
-    public final PollutionRendererRework mPollutionRendererRework = new PollutionRendererRework();
     public GTPowerfailRenderer powerfailRenderer;
     public KeyBinding shakeLockKey;
     private final List<Materials> mPosR;
@@ -350,10 +347,7 @@ public class GTClient extends GTProxy {
         MinecraftForge.EVENT_BUS.register(mPollutionRenderer);
         FMLCommonHandler.instance().bus().register(mPollutionRenderer);
 
-        MinecraftForge.EVENT_BUS.register(mPollutionRendererRework);
-        FMLCommonHandler.instance().bus().register(mPollutionRendererRework);
 
-        PollutionRendererRegistry.getInstance().initialize();
 
         MinecraftForge.EVENT_BUS.register(new GTMouseEventHandler());
         MinecraftForge.EVENT_BUS.register(new BlockOverlayRenderer());
@@ -384,7 +378,6 @@ public class GTClient extends GTProxy {
                 }
             });
         Pollution.onPostInitClient();
-        gregtech.common.pollutionRework.Pollution.onPostInitClient();
     }
 
     @Override
@@ -726,9 +719,9 @@ public class GTClient extends GTProxy {
     }
 
     public void processChunkPollutionPacket(PollutionType type, ChunkCoordIntPair chunk, int pollution) {
-//        mPollutionRenderer.processPacket(chunk, pollution);
-//        mPollutionRendererRework.processPollutionData(chunk, pollution);
-        PollutionRendererRegistry.getInstance().processPollutionData(type, chunk, pollution);
+        // mPollutionRenderer.processPacket(chunk, pollution);
+        // mPollutionRendererRework.processPollutionData(chunk, pollution);
+        // PollutionRendererRegistry.getInstance().processPollutionData(type, chunk, pollution);
     }
 
     @Override

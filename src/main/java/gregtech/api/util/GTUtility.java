@@ -187,8 +187,9 @@ import gregtech.api.threads.RunnableSound;
 import gregtech.common.items.ItemIntegratedCircuit;
 import gregtech.common.ores.OreManager;
 import gregtech.common.pollution.Pollution;
-import gregtech.common.pollutionWork.Api.PollutionApi;
-import gregtech.common.pollutionWork.Api.PollutionType;
+import gregtech.common.pollutionRework.Api.PollutionApi;
+import gregtech.common.pollutionRework.Api.PollutionRegistry;
+import gregtech.common.pollutionRework.Api.PollutionType;
 import ic2.api.recipe.IRecipeInput;
 import ic2.api.recipe.RecipeInputItemStack;
 import ic2.api.recipe.RecipeInputOreDict;
@@ -2578,22 +2579,12 @@ public class GTUtility {
                     + EnumChatFormatting.RESET);
         }
 
-        if (gregtech.common.pollutionRework.Pollution.hasPollution(currentChunk)) {
-            tList.add(
-                GTUtility.trans("202", "Pollution in Chunk: ") + EnumChatFormatting.RED
-                    + formatNumbers(gregtech.common.pollutionRework.Pollution.getPollution(currentChunk))
-                    + EnumChatFormatting.RESET
-                    + GTUtility.trans("203", " gibbl"));
-        } else {
-            tList.add(
-                EnumChatFormatting.GREEN + GTUtility.trans("204", "No Pollution in Chunk! HAYO!")
-                    + EnumChatFormatting.RESET);
-        }
+        Map<String, PollutionType> POLLUTIONS = PollutionRegistry.getAllPollutions();
 
-        for (PollutionType type : PollutionType.values()) {
+        for (PollutionType type : POLLUTIONS.values()) {
             if (PollutionApi.hasPollution(currentChunk, type)) {
                 tList.add(
-                    "Pollution " + type.getPollutionType()
+                    "Pollution " + type.getName()
                         + " in Chunk: "
                         + EnumChatFormatting.RED
                         + formatNumbers(PollutionApi.getPollution(currentChunk, type))
@@ -2602,7 +2593,7 @@ public class GTUtility {
             } else {
                 tList.add(
                     EnumChatFormatting.GREEN + "No Pollution "
-                        + type.getPollutionType()
+                        + type.getName()
                         + " in Chunk! HAYO!"
                         + EnumChatFormatting.RESET);
             }

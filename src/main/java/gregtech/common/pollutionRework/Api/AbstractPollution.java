@@ -1,17 +1,22 @@
-package gregtech.common.pollutionWork.Api;
+package gregtech.common.pollutionRework.Api;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import gregtech.common.pollutionWork.Api.Handlers.PollutionEffectHandler;
-import gregtech.common.pollutionWork.Api.Handlers.PollutionEventHandler;
-import gregtech.common.pollutionWork.Api.Handlers.PollutionNetworkHandler;
-import gregtech.common.pollutionWork.Api.Handlers.PollutionSpreadHandler;
+import net.minecraft.potion.Potion;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 
 import cpw.mods.fml.common.gameevent.TickEvent;
+import gregtech.common.pollutionRework.Data.PollutionData;
+import gregtech.common.pollutionRework.Handlers.PollutionEffectHandler;
+import gregtech.common.pollutionRework.Handlers.PollutionEventHandler;
+import gregtech.common.pollutionRework.Handlers.PollutionNetworkHandler;
+import gregtech.common.pollutionRework.Handlers.PollutionSpreadHandler;
 
 public abstract class AbstractPollution {
 
@@ -21,6 +26,8 @@ public abstract class AbstractPollution {
     abstract protected int getSpreadThreshold();
 
     abstract protected float getNaturalDecayRate();
+
+    abstract protected List<Potion> getPotion();
     // endregion
 
     // region Class Variables
@@ -28,11 +35,10 @@ public abstract class AbstractPollution {
     private final Set<ChunkCoordIntPair> pollutedChunks = new HashSet<>();
     private int operationsPerTick = 0;
     private boolean blank = true;
-    private final World world;
     protected final PollutionType pollutionType;
-    private static final PollutionEffectHandler EFFECT_HANDLER = new PollutionEffectHandler();
-    private static final PollutionSpreadHandler SPREAD_HANDLER = new PollutionSpreadHandler();
+    private final PollutionSpreadHandler SPREAD_HANDLER = new PollutionSpreadHandler();
     private static final PollutionEventHandler EVENT_HANDLER = new PollutionEventHandler();
+    private PollutionEffectHandler EFFECT_HANDLER;
     // endregion
 
     // region Static
@@ -42,16 +48,14 @@ public abstract class AbstractPollution {
     // endregion
 
     // region Constructors
-    public AbstractPollution(World world, PollutionType pollutionType) {
-        this.world = world;
+    public AbstractPollution(PollutionType pollutionType) {
         this.pollutionType = pollutionType;
-        pollutionType.getDimensionWisePollution()
-            .put(world.provider.dimensionId, this);
 
-        if (!world.isRemote) {
-            PollutionApi.getStorage(pollutionType)
-                .loadAll(world);
-        }
+        // if (!world.isRemote) {
+        // PollutionApi.getStorage(pollutionType)
+        // .loadAll(world);
+        // }
+        EFFECT_HANDLER = new PollutionEffectHandler(pollutionType.getPotionList());
     }
     // endregion
 
@@ -62,7 +66,7 @@ public abstract class AbstractPollution {
     // endregion
 
     // region Setters
-    private void setChunkPollution(ChunkCoordIntPair cord, int pollution) {
+    private void setChunkPollution(World world, ChunkCoordIntPair cord, int pollution) {
         PollutionApi.getStorage(pollutionType)
             .mutatePollution(
                 world,
@@ -78,19 +82,20 @@ public abstract class AbstractPollution {
         if (event.phase == TickEvent.Phase.START) return;
 
         final AbstractPollution pollutionInstance = pollutionType.getDimensionWisePollution()
-            .computeIfAbsent(event.world.provider.dimensionId, i -> pollutionType.createPollutionInstance(event.world));
+            .computeIfAbsent(event.world.provider.dimensionId, i -> pollutionType.createPollutionInstance());
 
-        pollutionInstance
-            .tickPollutionInWorld((int) (event.world.getTotalWorldTime() % pollutionInstance.getCycleLen()));
+        pollutionInstance.tickPollutionInWorld(
+            event.world,
+            (int) (event.world.getTotalWorldTime() % pollutionInstance.getCycleLen()));
     }
 
-    private void tickPollutionInWorld(int tickId) {
+    private void tickPollutionInWorld(World world, int tickId) {
         initializeCycleIfNeeded(tickId);
 
         int chunksToProcess = Math.min(operationsPerTick, pollutionList.size());
         for (int i = 0; i < chunksToProcess; i++) {
             ChunkCoordIntPair chunkPos = pollutionList.remove(pollutionList.size() - 1);
-            processChunkPollution(chunkPos);
+            processChunkPollution(world, chunkPos);
         }
     }
 
@@ -102,22 +107,22 @@ public abstract class AbstractPollution {
         }
     }
 
-    private void processChunkPollution(ChunkCoordIntPair chunkPos) {
+    private void processChunkPollution(World world, ChunkCoordIntPair chunkPos) {
         PollutionData data = PollutionApi.getStorage(pollutionType)
             .get(world, chunkPos);
         AtomicInteger pollution = new AtomicInteger((int) applyNaturalDecay(data.getPollutionAmount()));
 
         if (pollution.get() > getSpreadThreshold()) {
-            SPREAD_HANDLER.handlePollutionSpread(
-                world,
-                chunkPos,
-                pollution,
-                PollutionApi.getStorage(pollutionType),
-                pollutedChunks);
-            EFFECT_HANDLER.applyPollutionEffects(world, chunkPos, pollution.get());
+            // SPREAD_HANDLER.handlePollutionSpread(
+            // world,
+            // chunkPos,
+            // pollution,
+            // PollutionApi.getStorage(pollutionType),
+            // pollutedChunks);
+            EFFECT_HANDLER.applyPotionEffects(world, chunkPos, pollution.get());
         }
 
-        setChunkPollution(chunkPos, pollution.get());
+        setChunkPollution(world, chunkPos, pollution.get());
         PollutionNetworkHandler.sendPollutionUpdate(world, chunkPos, pollution.get());
     }
 

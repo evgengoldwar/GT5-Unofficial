@@ -4,7 +4,6 @@ import static net.minecraft.util.StatCollector.translateToLocal;
 
 import java.util.function.Consumer;
 
-import gregtech.common.pollutionWork.Api.PollutionApi;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -32,7 +31,8 @@ import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTETieredMachineBlock;
 import gregtech.api.render.TextureFactory;
-import gregtech.common.pollutionWork.Api.PollutionType;
+import gregtech.common.pollutionRework.Api.PollutionApi;
+import gregtech.common.pollutionRework.PollutionTypes;
 import tectech.TecTech;
 import tectech.util.CommonValues;
 
@@ -111,10 +111,11 @@ public class MTEDebugPollutor extends MTETieredMachineBlock implements IAddUIWid
     public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
         if (aBaseMetaTileEntity.isServerSide()) {
             if (pollution > 0) {
-//                Pollution.addPollution(aBaseMetaTileEntity, pollution);
-//                gregtech.common.pollutionRework.Pollution.addPollution(aBaseMetaTileEntity, pollution);
-                PollutionApi.addPollution(aBaseMetaTileEntity, pollution, PollutionType.SMOG);
-//                PollutionApi.addPollution(aBaseMetaTileEntity, pollution * 3, PollutionType.RADIOACTIVITY);
+                // Pollution.addPollution(aBaseMetaTileEntity, pollution);
+                // gregtech.common.pollutionRework.Pollution.addPollution(aBaseMetaTileEntity, pollution);
+                // PollutionApi.addPollution(aBaseMetaTileEntity, pollution, PollutionType.SMOG);
+                PollutionApi.addPollution(aBaseMetaTileEntity, pollution, PollutionTypes.SMOG);
+                // PollutionApi.addPollution(aBaseMetaTileEntity, pollution * 3, PollutionType.RADIOACTIVITY);
             }
         } else if (aBaseMetaTileEntity.isClientSide() && aBaseMetaTileEntity.isActive()) {
             for (final ForgeDirection side : ForgeDirection.VALID_DIRECTIONS) {
