@@ -3,12 +3,13 @@ package gregtech.common.pollutionRework.Api;
 import java.util.Collections;
 import java.util.List;
 
-import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.block.Block;
 import net.minecraft.potion.Potion;
 
 import gregtech.common.pollutionRework.Data.PollutionStorage;
+import gregtech.common.pollutionRework.Utils.BlockDamageManager;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import net.minecraft.world.biome.BiomeGenBase;
 
 public class PollutionType {
 
@@ -24,8 +25,11 @@ public class PollutionType {
     private final int pollutionDamageStart;
     private final int maxAttempts;
     private final int vegetationAttemptsDivisor;
-    private final List<Pair<Block, Block>> listPairBlocksReplace;
+    private final BlockDamageManager blockDamageManager;
     private final List<Block> listBlockDestroy;
+
+    // BiomeChange variables
+    private final BiomeGenBase biome;
 
     private final PollutionStorage storage;
     private final Int2ObjectOpenHashMap<AbstractPollution> dimensionWisePollution = new Int2ObjectOpenHashMap<>(16);
@@ -41,8 +45,9 @@ public class PollutionType {
                          int pollutionDamageStart,
                          int maxAttempts,
                          int vegetationAttemptsDivisor,
-                         List<Pair<Block, Block>> listPairBlocksReplace,
-                         List<Block> listBlockDestroy) {
+                         BlockDamageManager blockDamageManager,
+                         List<Block> listBlockDestroy,
+                         BiomeGenBase biome) {
 
         this.name = name;
         this.spreadThreshold = spreadThreshold;
@@ -52,8 +57,9 @@ public class PollutionType {
         this.pollutionDamageStart = pollutionDamageStart;
         this.maxAttempts = maxAttempts;
         this.vegetationAttemptsDivisor = vegetationAttemptsDivisor;
-        this.listPairBlocksReplace = listPairBlocksReplace;
+        this.blockDamageManager = blockDamageManager;
         this.listBlockDestroy = listBlockDestroy;
+        this.biome = biome;
 
         this.storage = new PollutionStorage(this);
     }
@@ -101,13 +107,18 @@ public class PollutionType {
         return vegetationAttemptsDivisor;
     }
 
-    public List<Pair<Block, Block>> getListPairBlocksReplace() {
-        return listPairBlocksReplace;
+    public BlockDamageManager getBlockDamageManager() {
+        return blockDamageManager;
     }
 
     public List<Block> getListBlockDestroy() {
         return listBlockDestroy;
     }
+
+    public BiomeGenBase getBiome() {
+        return biome;
+    }
+
     // endregion
 
     // region Others methods

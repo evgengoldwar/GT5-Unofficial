@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.block.Block;
 import net.minecraft.potion.Potion;
 
+import gregtech.common.pollutionRework.Utils.BlockDamageManager;
+import net.minecraft.world.biome.BiomeGenBase;
 
 public class PollutionBuilder {
 
@@ -18,13 +19,14 @@ public class PollutionBuilder {
     private int spreadThreshold = 100_000;
     private float naturalDecayRate = 0.9945f;
     private final List<Potion> potionList = new ArrayList<>();
+    private BiomeGenBase biome;
 
     // DamageBLock variables
-    private  int pollutionDamageStart = 100_000;
-    private  int maxAttempts = 100;
-    private  int vegetationAttemptsDivisor = 25_000;
-    private  List<Pair<Block, Block>> listPairBlocksReplace = new ArrayList<>();
-    private  List<Block> listBlockDestroy = new ArrayList<>();
+    private int pollutionDamageStart = 100_000;
+    private int maxAttempts = 100;
+    private int vegetationAttemptsDivisor = 25_000;
+    private BlockDamageManager blockDamageManager;
+    private List<Block> listBlockDestroy = new ArrayList<>();
     // endregion
 
     // region Constructor
@@ -73,13 +75,18 @@ public class PollutionBuilder {
         return this;
     }
 
-    public PollutionBuilder setListPairBlocksReplace(List<Pair<Block, Block>> listPairBlocksReplace) {
-        this.listPairBlocksReplace = listPairBlocksReplace;
+    public PollutionBuilder setBlocksDamage(BlockDamageManager blockDamageManager) {
+        this.blockDamageManager = blockDamageManager;
         return this;
     }
 
-    public PollutionBuilder setListBlocksDestroy(List<Block> listBlockDestroy) {
-        this.listBlockDestroy = listBlockDestroy;
+    public PollutionBuilder setBlocksDestroy(Block... blocks) {
+        this.listBlockDestroy.addAll(Arrays.asList(blocks));
+        return this;
+    }
+
+    public PollutionBuilder setBiomeChanger(BiomeGenBase biome) {
+        this.biome = biome;
         return this;
     }
 
@@ -93,8 +100,9 @@ public class PollutionBuilder {
             pollutionDamageStart,
             maxAttempts,
             vegetationAttemptsDivisor,
-            listPairBlocksReplace,
-            listBlockDestroy);
+            blockDamageManager,
+            listBlockDestroy,
+            biome);
     }
     // endregion
 }

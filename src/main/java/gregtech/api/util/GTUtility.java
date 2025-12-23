@@ -102,6 +102,7 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
+import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
@@ -2444,8 +2445,9 @@ public class GTUtility {
         }
 
         final Chunk currentChunk = aWorld.getChunkFromBlockCoords(aX, aZ);
+        final BiomeGenBase biome = aWorld.getBiomeGenForCoords(aX, aZ);
         addUndergroundFluidInfo(aPlayer, tList, currentChunk);
-        addPollutionInfo(tList, currentChunk);
+        addPollutionInfo(tList, currentChunk, biome);
 
         rEUAmount += addDebuggableBlockInfo(aPlayer, aX, aY, aZ, tList, tBlock);
 
@@ -2566,7 +2568,7 @@ public class GTUtility {
         return rEUAmount;
     }
 
-    private static void addPollutionInfo(ArrayList<String> tList, Chunk currentChunk) {
+    private static void addPollutionInfo(ArrayList<String> tList, Chunk currentChunk, BiomeGenBase biome) {
         if (Pollution.hasPollution(currentChunk)) {
             tList.add(
                 GTUtility.trans("202", "Pollution in Chunk: ") + EnumChatFormatting.RED
@@ -2598,6 +2600,8 @@ public class GTUtility {
                         + EnumChatFormatting.RESET);
             }
         }
+
+        tList.add("This biome Name: " + biome.biomeName + " biome Id: " + biome.biomeID);
 
     }
 

@@ -24,7 +24,7 @@ public abstract class AbstractPollution {
 
     abstract protected float getNaturalDecayRate();
 
-    abstract protected List<Potion> getPotion();
+    abstract protected List<Potion> getPotionList();
     // endregion
 
     // region Class Variables
@@ -49,16 +49,12 @@ public abstract class AbstractPollution {
     public AbstractPollution(PollutionType pollutionType) {
         this.pollutionType = pollutionType;
 
-        // if (!world.isRemote) {
-        // PollutionApi.getStorage(pollutionType)
-        // .loadAll(world);
-        // }
         EFFECT_HANDLER = new PollutionEffectHandler(pollutionType.getPotionList());
         DAMAGE_HANDLER = new PollutionBlockDamager(
             pollutionType.getPollutionDamageStart(),
             pollutionType.getMaxAttempts(),
             pollutionType.getVegetationAttemptsDivisor(),
-            pollutionType.getListPairBlocksReplace(),
+            pollutionType.getBlockDamageManager(),
             pollutionType.getListBlockDestroy());
     }
     // endregion
@@ -125,6 +121,7 @@ public abstract class AbstractPollution {
                 pollutedChunks);
             EFFECT_HANDLER.applyPotionEffects(world, chunkPos, pollution.get());
             DAMAGE_HANDLER.applyDamageEffects(world, chunkPos, pollution.get());
+            PollutionBiomeChangeHandler.changeChunkBiome(world, chunkPos,pollutionType.getBiome());
         }
 
         setChunkPollution(world, chunkPos, pollution.get());

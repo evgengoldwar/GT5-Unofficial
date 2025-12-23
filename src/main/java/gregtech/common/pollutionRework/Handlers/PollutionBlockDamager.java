@@ -2,30 +2,30 @@ package gregtech.common.pollutionRework.Handlers;
 
 import static gregtech.api.objects.XSTR.XSTR_INSTANCE;
 
-import java.util.Arrays;
 import java.util.List;
 
-import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 
+import cpw.mods.fml.common.registry.GameRegistry;
+import gregtech.common.pollutionRework.Utils.BlockDamageManager;
 
 public class PollutionBlockDamager {
 
     private final int pollutionDamageStart;
     private final int maxAttempts;
     private final int vegetationAttemptsDivisor;
-    private final List<Pair<Block, Block>> listPairBlocksReplace;
+    private final BlockDamageManager blockDamageManager;
     private final List<Block> listBlocksDestroy;
 
     public PollutionBlockDamager(int pollutionDamageStart, int maxAttempts, int vegetationAttemptsDivisor,
-        List<Pair<Block, Block>> listPairBlocksReplace, List<Block> listBlocksDestroy) {
+        BlockDamageManager blockDamageManager, List<Block> listBlocksDestroy) {
         this.pollutionDamageStart = pollutionDamageStart;
         this.maxAttempts = maxAttempts;
         this.vegetationAttemptsDivisor = vegetationAttemptsDivisor;
-        this.listPairBlocksReplace = listPairBlocksReplace;
+        this.blockDamageManager = blockDamageManager;
         this.listBlocksDestroy = listBlocksDestroy;
     }
 
@@ -52,6 +52,8 @@ public class PollutionBlockDamager {
 
             if (tBlock == Blocks.air) continue;
 
+            final GameRegistry.UniqueIdentifier identifier = GameRegistry.findUniqueIdentifierFor(tBlock);
+
             if (XSTR_INSTANCE.nextBoolean()) {
                 replaceBlock(world, x, y, z, tBlock);
             } else {
@@ -61,15 +63,15 @@ public class PollutionBlockDamager {
     }
 
     private void replaceBlock(World world, int x, int y, int z, Block tBlock) {
-        for (Pair<Block, Block> blocks : listPairBlocksReplace) {
-            Block leftBlock = blocks.first();
-            Block rightBlock = blocks.second();
+        if (blockDamageManager == null) return;
 
-            if (tBlock == rightBlock) return;
+        Block masterBlock = blockDamageManager.getMasterBlock();
+        Block randomBlock = blockDamageManager.getRandomBLock();
 
-            if (tBlock == leftBlock) {
-                world.setBlock(x, y, z, rightBlock);
-            }
+        if (tBlock == randomBlock) return;
+
+        if (tBlock == masterBlock) {
+            world.setBlock(x, y, z, randomBlock);
         }
     }
 

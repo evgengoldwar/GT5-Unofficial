@@ -2,8 +2,13 @@ package tectech.thing.metaTileEntity.single;
 
 import static net.minecraft.util.StatCollector.translateToLocal;
 
+import java.util.AbstractCollection;
+import java.util.Map;
 import java.util.function.Consumer;
 
+import gregtech.common.pollutionRework.Api.AbstractPollution;
+import gregtech.common.pollutionRework.Api.PollutionRegistry;
+import gregtech.common.pollutionRework.Api.PollutionType;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -114,7 +119,11 @@ public class MTEDebugPollutor extends MTETieredMachineBlock implements IAddUIWid
                 // Pollution.addPollution(aBaseMetaTileEntity, pollution);
                 // gregtech.common.pollutionRework.Pollution.addPollution(aBaseMetaTileEntity, pollution);
                 // PollutionApi.addPollution(aBaseMetaTileEntity, pollution, PollutionType.SMOG);
-                PollutionApi.addPollution(aBaseMetaTileEntity, pollution, PollutionTypes.SMOG);
+                Map<String, PollutionType> POLLUTIONS = PollutionRegistry.getAllPollutions();
+
+                for (PollutionType type : POLLUTIONS.values()) {
+                    PollutionApi.addPollution(aBaseMetaTileEntity, pollution, type);
+                }
                 // PollutionApi.addPollution(aBaseMetaTileEntity, pollution * 3, PollutionType.RADIOACTIVITY);
             }
         } else if (aBaseMetaTileEntity.isClientSide() && aBaseMetaTileEntity.isActive()) {

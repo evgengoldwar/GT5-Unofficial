@@ -29,7 +29,7 @@ public class Pollution extends AbstractPollution {
     }
 
     @Override
-    protected List<Potion> getPotion() {
+    protected List<Potion> getPotionList() {
         return pollutionType.getPotionList();
     }
 }
