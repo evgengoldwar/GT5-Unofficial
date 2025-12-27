@@ -4,13 +4,13 @@ import java.util.Arrays;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.potion.Potion;
+import net.minecraft.world.biome.BiomeGenBase;
 
 import gregtech.common.pollutionRework.Api.PollutionBuilder;
 import gregtech.common.pollutionRework.Api.PollutionRegistry;
 import gregtech.common.pollutionRework.Api.PollutionType;
 import gregtech.common.pollutionRework.Utils.BlockDamageManager;
 import it.unimi.dsi.fastutil.Pair;
-import net.minecraft.world.biome.BiomeGenBase;
 
 public class PollutionTypes {
 
@@ -18,7 +18,7 @@ public class PollutionTypes {
         PollutionRegistry.registerPollution(SMOG);
         PollutionRegistry.registerPollution(RADIATION);
 
-//        registerTestPollution();
+        // registerTestPollution();
     }
 
     public static final PollutionType SMOG = PollutionBuilder.builder("SMOG")
@@ -52,7 +52,7 @@ public class PollutionTypes {
     // TEST
 
     public static void registerTestPollution() {
-        for (int i = 1; i <= 100; i++) {
+        for (int i = 1; i <= 50; i++) {
             String name = "Pollution_" + i;
 
             PollutionType pollution = PollutionBuilder.builder(name)

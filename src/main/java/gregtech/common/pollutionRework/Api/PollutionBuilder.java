@@ -6,9 +6,9 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.potion.Potion;
+import net.minecraft.world.biome.BiomeGenBase;
 
 import gregtech.common.pollutionRework.Utils.BlockDamageManager;
-import net.minecraft.world.biome.BiomeGenBase;
 
 public class PollutionBuilder {
 

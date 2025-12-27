@@ -2047,14 +2047,34 @@ public class GTProxy implements IFuelHandler {
             }
         }
 
-        Pollution.onWorldTick(aEvent);
-
-        Map<String, PollutionType> POLLUTIONS = PollutionRegistry.getAllPollutions();
-
-        for (PollutionType pollutionType : POLLUTIONS.values()) {
-            AbstractPollution.onWorldTick(aEvent, pollutionType);
+        if (POLLUTION_TYPE_LIST.isEmpty()) {
+            POLLUTION_TYPE_LIST.addAll(PollutionRegistry.getAllPollutions());
         }
+
+        if (!POLLUTION_TYPE_LIST.isEmpty()) {
+            new Thread("NEI Plugin Loader") {
+
+                @Override
+                public void run() {
+                    long worldTime = aEvent.world.getWorldTime();
+
+                    for (PollutionType pollutionType : POLLUTION_TYPE_LIST) {
+                        int tickId = (int) (worldTime % pollutionType.getCycleLen());
+
+                        if (aEvent.world.provider.dimensionId != 0) continue;
+
+                        if (aEvent.phase == TickEvent.Phase.START) {
+                            AbstractPollution.onWorldTick(aEvent.world, pollutionType, tickId);
+                        }
+                    }
+                }
+            }.start();
+        }
+
+        Pollution.onWorldTick(aEvent);
     }
+
+    private final List<PollutionType> POLLUTION_TYPE_LIST = new ArrayList<>();
 
     @SubscribeEvent
     public void onWorldUnload(WorldEvent.Unload event) {

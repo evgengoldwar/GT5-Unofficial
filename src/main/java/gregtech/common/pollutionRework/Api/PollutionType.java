@@ -5,11 +5,11 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.potion.Potion;
+import net.minecraft.world.biome.BiomeGenBase;
 
 import gregtech.common.pollutionRework.Data.PollutionStorage;
 import gregtech.common.pollutionRework.Utils.BlockDamageManager;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import net.minecraft.world.biome.BiomeGenBase;
 
 public class PollutionType {
 

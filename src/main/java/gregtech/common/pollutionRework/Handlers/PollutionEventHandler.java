@@ -1,6 +1,6 @@
 package gregtech.common.pollutionRework.Handlers;
 
-import java.util.Map;
+import java.util.List;
 
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
@@ -17,7 +17,7 @@ import gregtech.common.pollutionRework.Data.PollutionStorage;
 
 public class PollutionEventHandler {
 
-    private static final Map<String, PollutionType> POLLUTIONS = PollutionRegistry.getAllPollutions();
+    private static final List<PollutionType> POLLUTIONS = PollutionRegistry.getAllPollutions();
 
     @SubscribeEvent
     public void onChunkWatch(ChunkWatchEvent.Watch event) {
@@ -26,7 +26,7 @@ public class PollutionEventHandler {
         World world = event.player.worldObj;
         ChunkCoordIntPair chunkCord = new ChunkCoordIntPair(event.chunk.chunkXPos, event.chunk.chunkZPos);
 
-        for (PollutionType type : POLLUTIONS.values()) {
+        for (PollutionType type : POLLUTIONS) {
             PollutionStorage storage = PollutionApi.getStorage(type);
             int pollution = 0;
 
@@ -44,7 +44,7 @@ public class PollutionEventHandler {
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
         if (!event.world.isRemote) {
-            for (PollutionType type : POLLUTIONS.values()) {
+            for (PollutionType type : POLLUTIONS) {
                 PollutionApi.getStorage(type)
                     .loadAll(event.world);
             }
@@ -54,7 +54,7 @@ public class PollutionEventHandler {
     @SubscribeEvent
     public void onWorldUnload(WorldEvent.Unload event) {
         if (event.world == null) return;
-        for (PollutionType type : POLLUTIONS.values()) {
+        for (PollutionType type : POLLUTIONS) {
             type.getDimensionWisePollution()
                 .remove(event.world.provider.dimensionId);
         }

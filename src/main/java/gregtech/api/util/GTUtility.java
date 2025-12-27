@@ -2581,9 +2581,7 @@ public class GTUtility {
                     + EnumChatFormatting.RESET);
         }
 
-        Map<String, PollutionType> POLLUTIONS = PollutionRegistry.getAllPollutions();
-
-        for (PollutionType type : POLLUTIONS.values()) {
+        for (PollutionType type : PollutionRegistry.getAllPollutions()) {
             if (PollutionApi.hasPollution(currentChunk, type)) {
                 tList.add(
                     "Pollution " + type.getName()

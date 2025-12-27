@@ -1,7 +1,6 @@
 package gregtech.common.pollutionRework.Api;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class PollutionRegistry {
 
@@ -15,7 +14,7 @@ public class PollutionRegistry {
         return REGISTERED_POLLUTIONS.get(name);
     }
 
-    public static Map<String, PollutionType> getAllPollutions() {
-        return new HashMap<>(REGISTERED_POLLUTIONS);
+    public static List<PollutionType> getAllPollutions() {
+        return new ArrayList<>(REGISTERED_POLLUTIONS.values());
     }
 }

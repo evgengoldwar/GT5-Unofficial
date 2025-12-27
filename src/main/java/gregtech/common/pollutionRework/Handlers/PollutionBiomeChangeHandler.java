@@ -12,8 +12,7 @@ public class PollutionBiomeChangeHandler {
 
         if (chunk == null || biome == null) return;
 
-        BiomeGenBase currentBiome = chunk
-            .getBiomeGenForWorldCoords(7, 7, world.getWorldChunkManager());
+        BiomeGenBase currentBiome = chunk.getBiomeGenForWorldCoords(7, 7, world.getWorldChunkManager());
 
         if (currentBiome == biome) return;
 
