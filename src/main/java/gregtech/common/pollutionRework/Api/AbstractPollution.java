@@ -3,9 +3,12 @@ package gregtech.common.pollutionRework.Api;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import gregtech.common.pollutionRework.Data.PollutionStorage;
+import gregtech.common.pollutionRework.Utils.PollutionUtils;
 import net.minecraft.potion.Potion;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.MinecraftForge;
 
 import gregtech.common.pollutionRework.Data.PollutionData;
@@ -61,9 +64,8 @@ public abstract class AbstractPollution {
     // endregion
 
     // region Setters
-    private void setChunkPollution(World world, ChunkCoordIntPair cord, int pollution) {
-        PollutionApi.getStorage(pollutionType)
-            .mutatePollution(
+    private void setChunkPollution(World world, ChunkCoordIntPair cord, int pollution, PollutionStorage storage) {
+        storage.mutatePollution(
                 world,
                 cord.chunkXPos,
                 cord.chunkZPos,
@@ -94,46 +96,32 @@ public abstract class AbstractPollution {
     }
 
     private void tickPollutionInWorld(World world, int tickId) {
-        long startNano = System.nanoTime();
-        long startMc = System.currentTimeMillis();
-
         for (int i = 0; i < operationsPerTick && !pollutionList.isEmpty(); i++) {
             ChunkCoordIntPair chunkPos = pollutionList.remove(pollutionList.size() - 1);
-            processChunkPollution(world, chunkPos);
-        }
 
-        System.out.println(
-            "Pollution type: " + pollutionType.getName()
-                + " Tick id: "
-                + tickId
-                + " Dim id: "
-                + world.provider.dimensionId
-                + " Time used: "
-                + (System.currentTimeMillis() - startMc)
-                + " mc "
-                + (System.nanoTime() - startNano)
-                + " nano");
+            if (PollutionUtils.checkIsChunkLoaded(chunkPos, world)) {
+                processChunkPollution(world, chunkPos);
+            }
+        }
     }
 
     private void processChunkPollution(World world, ChunkCoordIntPair chunkPos) {
-        PollutionData data = PollutionApi.getStorage(pollutionType)
-            .get(world, chunkPos);
-        AtomicInteger pollution = new AtomicInteger((int) applyNaturalDecay(data.getPollutionAmount()));
+        PollutionStorage storage = PollutionApi.getStorage(pollutionType);
+        PollutionData data = storage.get(world, chunkPos);
+        AtomicInteger pollution = new AtomicInteger((int) (getNaturalDecayRate() * data.getPollutionAmount()));
 
         if (pollution.get() > getSpreadThreshold()) {
-            synchronized (pollutedChunks) {
-                SPREAD_HANDLER.handlePollutionSpread(
-                    world,
-                    chunkPos,
-                    pollution,
-                    PollutionApi.getStorage(pollutionType),
-                    pollutedChunks);
-                // EFFECT_HANDLER.applyPotionEffects(world, chunkPos, pollution.get());
-                // DAMAGE_HANDLER.applyDamageEffects(world, chunkPos, pollution.get());
-                PollutionBiomeChangeHandler.changeChunkBiome(world, chunkPos, pollutionType.getBiome());
-                setChunkPollution(world, chunkPos, pollution.get());
-                PollutionNetworkHandler.sendPollutionUpdate(world, chunkPos, pollution.get(), pollutionType);
-            }
+            SPREAD_HANDLER.handlePollutionSpread(
+                world,
+                chunkPos,
+                pollution,
+                storage,
+                pollutedChunks);
+            EFFECT_HANDLER.applyPotionEffects(world, chunkPos, pollution.get());
+            DAMAGE_HANDLER.applyDamageEffects(world, chunkPos, pollution.get());
+            PollutionBiomeChangeHandler.changeChunkBiome(world, chunkPos, pollutionType.getBiome());
+            setChunkPollution(world, chunkPos, pollution.get(), storage);
+            PollutionNetworkHandler.sendPollutionUpdate(world, chunkPos, pollution.get(), pollutionType);
         }
     }
 

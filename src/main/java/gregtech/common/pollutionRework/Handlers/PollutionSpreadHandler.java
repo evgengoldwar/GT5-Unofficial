@@ -8,6 +8,7 @@ import net.minecraft.world.World;
 
 import gregtech.common.pollutionRework.Data.PollutionData;
 import gregtech.common.pollutionRework.Data.PollutionStorage;
+import net.minecraft.world.chunk.Chunk;
 
 public class PollutionSpreadHandler {
 
@@ -32,6 +33,15 @@ public class PollutionSpreadHandler {
             ChunkCoordIntPair neighborPos = new ChunkCoordIntPair(
                 sourcePos.chunkXPos + offset.chunkXPos,
                 sourcePos.chunkZPos + offset.chunkZPos);
+
+            if (!world.getChunkProvider().chunkExists(neighborPos.chunkXPos, neighborPos.chunkZPos)) {
+                continue;
+            }
+
+            Chunk chunk = world.getChunkFromChunkCoords(neighborPos.chunkXPos, neighborPos.chunkZPos);
+            if (chunk == null || !chunk.isChunkLoaded) {
+                continue;
+            }
 
             totalSpread += spreadPollutionToNeighbor(
                 world,

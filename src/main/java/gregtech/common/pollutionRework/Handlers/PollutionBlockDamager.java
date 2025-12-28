@@ -4,6 +4,7 @@ import static gregtech.api.objects.XSTR.XSTR_INSTANCE;
 
 import java.util.List;
 
+import gregtech.common.pollutionRework.Utils.PollutionUtils;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.ChunkCoordIntPair;
@@ -11,6 +12,7 @@ import net.minecraft.world.World;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 import gregtech.common.pollutionRework.Utils.BlockDamageManager;
+import net.minecraft.world.chunk.Chunk;
 
 public class PollutionBlockDamager {
 
@@ -36,19 +38,36 @@ public class PollutionBlockDamager {
     }
 
     private void damageVegetation(World world, ChunkCoordIntPair chunkPos, int pollution) {
-        int attempts = Math.min(maxAttempts, pollution / vegetationAttemptsDivisor);
+        if (!PollutionUtils.checkIsChunkLoaded(chunkPos, world)) return;
+
+        final int attempts = Math.min(maxAttempts, pollution / vegetationAttemptsDivisor);
         final int CHUNK_SIZE = 16;
+        final int OFFSET = 2;
+        final int baseX = chunkPos.chunkXPos << 4;
+        final int baseZ = chunkPos.chunkZPos << 4;
+
+        final boolean northLoaded = PollutionUtils.checkIsChunkLoaded(chunkPos.chunkXPos, chunkPos.chunkZPos - 1, world);
+        final boolean southLoaded = PollutionUtils.checkIsChunkLoaded(chunkPos.chunkXPos, chunkPos.chunkZPos + 1, world);
+        final boolean westLoaded = PollutionUtils.checkIsChunkLoaded(chunkPos.chunkXPos - 1, chunkPos.chunkZPos, world);
+        final boolean eastLoaded = PollutionUtils.checkIsChunkLoaded(chunkPos.chunkXPos + 1, chunkPos.chunkZPos, world);
+
+        final int minXLocal = westLoaded ? 0 : OFFSET;
+        final int maxXLocal = eastLoaded ? CHUNK_SIZE - 1 : CHUNK_SIZE - 1 - OFFSET;
+        final int minZLocal = northLoaded ? 0 : OFFSET;
+        final int maxZLocal = southLoaded ? CHUNK_SIZE - 1 : CHUNK_SIZE - 1 - OFFSET;
+
+        final int widthX = maxXLocal - minXLocal + 1;
+        final int widthZ = maxZLocal - minZLocal + 1;
 
         for (int i = 0; i < attempts; i++) {
-            int baseX = chunkPos.chunkXPos << 4;
-            int baseZ = chunkPos.chunkZPos << 4;
-            int x = baseX + XSTR_INSTANCE.nextInt(CHUNK_SIZE);
-            int y = 60 + (-i + XSTR_INSTANCE.nextInt(i * 2 + 1));
-            int z = baseZ + XSTR_INSTANCE.nextInt(CHUNK_SIZE);
-            Block tBlock = world.getBlock(x, y, z);
-            int tMeta = world.getBlockMetadata(x, y, z);
+            final int localX = minXLocal + XSTR_INSTANCE.nextInt(widthX);
+            final int localZ = minZLocal + XSTR_INSTANCE.nextInt(widthZ);
 
-            if (world.isRemote) return;
+            int x = baseX + localX;
+            int z = baseZ + localZ;
+
+            int y = 60 + (-i + XSTR_INSTANCE.nextInt(i * 2 + 1));
+            Block tBlock = world.getBlock(x, y, z);
 
             if (tBlock == Blocks.air) continue;
 
@@ -57,7 +76,7 @@ public class PollutionBlockDamager {
             if (XSTR_INSTANCE.nextBoolean()) {
                 replaceBlock(world, x, y, z, tBlock);
             } else {
-                destroyBlock(world, x, y, z, tBlock, tMeta);
+                destroyBlock(world, x, y, z, tBlock, world.getBlockMetadata(x, y, z));
             }
         }
     }

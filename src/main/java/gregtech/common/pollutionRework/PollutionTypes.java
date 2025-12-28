@@ -18,7 +18,7 @@ public class PollutionTypes {
         PollutionRegistry.registerPollution(SMOG);
         PollutionRegistry.registerPollution(RADIATION);
 
-        // registerTestPollution();
+//         registerTestPollution();
     }
 
     public static final PollutionType SMOG = PollutionBuilder.builder("SMOG")
@@ -26,7 +26,7 @@ public class PollutionTypes {
         .setCycleLen(200)
         .setNaturalDecayRate(0.9945f)
         .addPotion(Potion.blindness)
-        .setMaxAttempts(500)
+        .setMaxAttempts(10)
         .setPollutionDamageStart(100)
         .setVegetationAttemptsDivisor(1)
         .setBlocksDestroy(Blocks.sand, Blocks.grass)
@@ -56,6 +56,7 @@ public class PollutionTypes {
             String name = "Pollution_" + i;
 
             PollutionType pollution = PollutionBuilder.builder(name)
+                .setSpreadThreshold(10_000)
                 .setCycleLen(200)
                 .build();
             PollutionRegistry.registerPollution(pollution);

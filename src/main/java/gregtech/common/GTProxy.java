@@ -2051,24 +2051,18 @@ public class GTProxy implements IFuelHandler {
             POLLUTION_TYPE_LIST.addAll(PollutionRegistry.getAllPollutions());
         }
 
-        if (!POLLUTION_TYPE_LIST.isEmpty()) {
-            new Thread("NEI Plugin Loader") {
+        long worldTime = aEvent.world.getWorldTime();
 
-                @Override
-                public void run() {
-                    long worldTime = aEvent.world.getWorldTime();
+        for (PollutionType pollutionType : POLLUTION_TYPE_LIST) {
+            if (aEvent.world.isRemote) return;
 
-                    for (PollutionType pollutionType : POLLUTION_TYPE_LIST) {
-                        int tickId = (int) (worldTime % pollutionType.getCycleLen());
+            int tickId = (int) (worldTime % pollutionType.getCycleLen());
 
-                        if (aEvent.world.provider.dimensionId != 0) continue;
+            if (aEvent.world.provider.dimensionId != 0) continue;
 
-                        if (aEvent.phase == TickEvent.Phase.START) {
-                            AbstractPollution.onWorldTick(aEvent.world, pollutionType, tickId);
-                        }
-                    }
-                }
-            }.start();
+            if (aEvent.phase == TickEvent.Phase.START) {
+                AbstractPollution.onWorldTick(aEvent.world, pollutionType, tickId);
+            }
         }
 
         Pollution.onWorldTick(aEvent);

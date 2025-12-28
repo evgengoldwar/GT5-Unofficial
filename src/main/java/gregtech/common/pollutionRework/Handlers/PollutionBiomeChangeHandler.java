@@ -1,5 +1,6 @@
 package gregtech.common.pollutionRework.Handlers;
 
+import gregtech.common.pollutionRework.Utils.PollutionUtils;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
@@ -8,9 +9,13 @@ import net.minecraft.world.chunk.Chunk;
 public class PollutionBiomeChangeHandler {
 
     public static void changeChunkBiome(World world, ChunkCoordIntPair chunkPos, BiomeGenBase biome) {
-        Chunk chunk = world.getChunkFromChunkCoords(chunkPos.chunkXPos, chunkPos.chunkZPos);
+        if (!PollutionUtils.checkIsChunkLoaded(chunkPos, world)) {
+            return;
+        }
 
-        if (chunk == null || biome == null) return;
+        if (biome == null) return;
+
+        Chunk chunk = world.getChunkFromBlockCoords(chunkPos.chunkXPos, chunkPos.chunkZPos);
 
         BiomeGenBase currentBiome = chunk.getBiomeGenForWorldCoords(7, 7, world.getWorldChunkManager());
 
