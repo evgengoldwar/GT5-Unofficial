@@ -12,35 +12,26 @@ import net.minecraft.world.World;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 import gregtech.common.pollutionRework.Utils.BlockDamageManager;
-import net.minecraft.world.chunk.Chunk;
 
 public class PollutionBlockDamager {
 
-    private final int pollutionDamageStart;
-    private final int maxAttempts;
-    private final int vegetationAttemptsDivisor;
-    private final List<BlockDamageManager> blockDamageManager;
-    private final List<Block> listBlocksDestroy;
+    private final int maxAttemptsBlockReplace;
+    private final int pollutionThresholdPerAttempt;
+    private final List<BlockDamageManager> blockDamageManagerList;
+    private final List<Block> blocksDestroyList;
 
-    public PollutionBlockDamager(int pollutionDamageStart, int maxAttempts, int vegetationAttemptsDivisor,
-        List<BlockDamageManager> blockDamageManager, List<Block> listBlocksDestroy) {
-        this.pollutionDamageStart = pollutionDamageStart;
-        this.maxAttempts = maxAttempts;
-        this.vegetationAttemptsDivisor = vegetationAttemptsDivisor;
-        this.blockDamageManager = blockDamageManager;
-        this.listBlocksDestroy = listBlocksDestroy;
+    public PollutionBlockDamager(int maxAttemptsBlockReplace, int pollutionThresholdPerAttempt,
+                                 List<BlockDamageManager> blockDamageManagerList, List<Block> blocksDestroyList) {
+        this.maxAttemptsBlockReplace = maxAttemptsBlockReplace;
+        this.pollutionThresholdPerAttempt = pollutionThresholdPerAttempt;
+        this.blockDamageManagerList = blockDamageManagerList;
+        this.blocksDestroyList = blocksDestroyList;
     }
 
     public void applyDamageEffects(World world, ChunkCoordIntPair chunkPos, int pollution) {
-        if (pollution > pollutionDamageStart) {
-            damageVegetation(world, chunkPos, pollution);
-        }
-    }
-
-    private void damageVegetation(World world, ChunkCoordIntPair chunkPos, int pollution) {
         if (!PollutionUtils.checkIsChunkLoaded(chunkPos, world)) return;
 
-        final int attempts = Math.min(maxAttempts, pollution / vegetationAttemptsDivisor);
+        final int attempts = Math.min(maxAttemptsBlockReplace, pollution / pollutionThresholdPerAttempt);
         final int CHUNK_SIZE = 16;
         final int OFFSET = 2;
         final int baseX = chunkPos.chunkXPos << 4;
@@ -82,11 +73,11 @@ public class PollutionBlockDamager {
     }
 
     private void replaceBlock(World world, int x, int y, int z, Block tBlock) {
-        if (blockDamageManager == null) return;
+        if (blockDamageManagerList == null) return;
 
-        int randomIndex = XSTR_INSTANCE.nextInt(blockDamageManager.size());
+        int randomIndex = XSTR_INSTANCE.nextInt(blockDamageManagerList.size());
 
-        BlockDamageManager bdm = blockDamageManager.get(randomIndex);
+        BlockDamageManager bdm = blockDamageManagerList.get(randomIndex);
 
         if (bdm == null) return;
 
@@ -101,7 +92,7 @@ public class PollutionBlockDamager {
     }
 
     private void destroyBlock(World world, int x, int y, int z, Block tBlock, int tMeta) {
-        for (Block block : listBlocksDestroy) {
+        for (Block block : blocksDestroyList) {
             if (tBlock == block) {
                 tBlock.dropBlockAsItem(world, x, y, z, tMeta, 0);
                 world.setBlockToAir(x, y, z);

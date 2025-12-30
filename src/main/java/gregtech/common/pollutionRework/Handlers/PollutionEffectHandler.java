@@ -25,15 +25,13 @@ public class PollutionEffectHandler {
     private final int MAX_DURATION = 1000;
     private final int CHUNK_HEIGHT = 256;
     private final int CHUNK_SIZE = 16;
-    private List<Potion> potionList = new ArrayList<>();
+    private final List<Potion> potionList = new ArrayList<>();
 
     public PollutionEffectHandler(List<Potion> potionList) {
         this.potionList.addAll(potionList);
     }
 
     public void applyPotionEffects(World world, ChunkCoordIntPair chunkPos, int pollution) {
-        if (pollution < GTMod.proxy.mPollutionSmogLimit) return;
-
         AxisAlignedBB chunkBounds = createChunkBoundingBox(chunkPos);
         List<EntityLivingBase> entities = world.getEntitiesWithinAABB(EntityLivingBase.class, chunkBounds);
 

@@ -14,23 +14,28 @@ import gregtech.common.pollutionRework.Utils.BlockDamageManager;
 public class PollutionBuilder {
 
     // region Variables
-    // Abstract variables
+    // Base
     private final String name;
-    private int cycleLen = 1_000;
-    private int spreadThreshold = 100_000;
+    private int operationCycle = 1_000;
+
+    // Spread
+    private int spreadThreshold = 500_000;
     private float naturalDecayRate = 0.9945f;
+
+    // Effect
     private final List<Potion> potionList = new ArrayList<>();
+    private int pollutionEffectThreshold = 500_000;
 
     // DamageBLock variables
-    private int pollutionDamageStart = 100_000;
-    private int maxAttempts = 100;
-    private int vegetationAttemptsDivisor = 25_000;
-    private final List<BlockDamageManager> blockDamageManager = new ArrayList<>();
-    private final List<Block> listBlockDestroy = new ArrayList<>();
+    private int pollutionDamageThreshold = 500_000;
+    private int maxAttemptsBlockReplace = 10;
+    private int pollutionThresholdPerAttempt = 25_000;
+    private final List<BlockDamageManager> blockDamageManagerList = new ArrayList<>();
+    private final List<Block> blockDestroyList = new ArrayList<>();
 
     // Biome Variables
-    private BiomeGenBase biome;
-    private int biomeChangeThreshold;
+    private BiomeGenBase changeBiome;
+    private int biomeChangeThreshold = 10_000_000;
     // endregion
 
     // region Constructor
@@ -44,11 +49,18 @@ public class PollutionBuilder {
         return new PollutionBuilder(name);
     }
 
-    public PollutionBuilder addPotion(Potion... potions) {
+    // Effect
+    public PollutionBuilder setPotion(Potion... potions) {
         this.potionList.addAll(Arrays.asList(potions));
         return this;
     }
 
+    public PollutionBuilder setPollutionEffectThreshold(int pollutionEffectThreshold) {
+        this.pollutionEffectThreshold = pollutionEffectThreshold;
+        return this;
+    }
+
+    // Spread
     public PollutionBuilder setSpreadThreshold(int spreadThreshold) {
         this.spreadThreshold = spreadThreshold;
         return this;
@@ -59,44 +71,47 @@ public class PollutionBuilder {
         return this;
     }
 
-    public PollutionBuilder setCycleLen(int cycleLen) {
-        this.cycleLen = cycleLen;
+    // Base
+    public PollutionBuilder setOperationCycle(int operationCycle) {
+        this.operationCycle = operationCycle;
         return this;
     }
 
-    public PollutionBuilder setPollutionDamageStart(int pollutionDamageStart) {
-        this.pollutionDamageStart = pollutionDamageStart;
+    // Damage
+    public PollutionBuilder setPollutionDamageThreshold(int pollutionDamageThreshold) {
+        this.pollutionDamageThreshold = pollutionDamageThreshold;
         return this;
     }
 
-    public PollutionBuilder setMaxAttempts(int maxAttempts) {
-        this.maxAttempts = maxAttempts;
+    public PollutionBuilder setMaxAttemptsBlockReplace(int maxAttemptsBlockReplace) {
+        this.maxAttemptsBlockReplace = maxAttemptsBlockReplace;
         return this;
     }
 
-    public PollutionBuilder setVegetationAttemptsDivisor(int vegetationAttemptsDivisor) {
-        this.vegetationAttemptsDivisor = vegetationAttemptsDivisor;
+    public PollutionBuilder setPollutionThresholdPerAttempt(int pollutionThresholdPerAttempt) {
+        this.pollutionThresholdPerAttempt = pollutionThresholdPerAttempt;
         return this;
     }
 
     public PollutionBuilder setBlocksReplace(Block masterBlock, Block... replaceBlock) {
-        this.blockDamageManager.add(BlockDamageManager.setBlocksReplace(masterBlock, replaceBlock));
+        this.blockDamageManagerList.add(BlockDamageManager.setBlocksReplace(masterBlock, replaceBlock));
         return this;
     }
 
     @SafeVarargs
     public final PollutionBuilder setBlocksReplace(Block masterBlock, Pair<Block, Integer>... replaceBlock) {
-        this.blockDamageManager.add(BlockDamageManager.setBlocksReplace(masterBlock, replaceBlock));
+        this.blockDamageManagerList.add(BlockDamageManager.setBlocksReplace(masterBlock, replaceBlock));
         return this;
     }
 
     public PollutionBuilder setBlocksDestroy(Block... blocks) {
-        this.listBlockDestroy.addAll(Arrays.asList(blocks));
+        this.blockDestroyList.addAll(Arrays.asList(blocks));
         return this;
     }
 
+    // Biome
     public PollutionBuilder setBiomeChanger(BiomeGenBase biome, int biomeChangeThreshold) {
-        this.biome = biome;
+        this.changeBiome = biome;
         this.biomeChangeThreshold = biomeChangeThreshold;
         return this;
     }
@@ -105,16 +120,17 @@ public class PollutionBuilder {
         return new PollutionType(
             name,
             spreadThreshold,
-            cycleLen,
+            operationCycle,
             naturalDecayRate,
             potionList,
-            pollutionDamageStart,
-            maxAttempts,
-            vegetationAttemptsDivisor,
-            blockDamageManager,
-            listBlockDestroy,
-            biome,
-            biomeChangeThreshold);
+            pollutionDamageThreshold,
+            maxAttemptsBlockReplace,
+            pollutionThresholdPerAttempt,
+            blockDamageManagerList,
+            blockDestroyList,
+            changeBiome,
+            biomeChangeThreshold,
+            pollutionEffectThreshold);
     }
     // endregion
 }

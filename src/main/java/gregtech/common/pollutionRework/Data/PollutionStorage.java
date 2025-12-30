@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import gregtech.common.pollutionRework.Api.Pollution;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 
@@ -14,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 import com.gtnewhorizons.angelica.shadow.javax.annotation.Nullable;
 
 import gregtech.api.util.GTChunkAssociatedData;
-import gregtech.common.pollutionRework.Api.AbstractPollution;
 import gregtech.common.pollutionRework.Api.PollutionType;
 
 public class PollutionStorage extends GTChunkAssociatedData<PollutionData> {
@@ -80,7 +80,7 @@ public class PollutionStorage extends GTChunkAssociatedData<PollutionData> {
         return isCreated(world.provider.dimensionId, chunkCord.chunkXPos, chunkCord.chunkZPos);
     }
 
-    private AbstractPollution getPollutionManager(World world) {
+    private Pollution getPollutionManager(World world) {
         return pollutionType.getDimensionWisePollution()
             .computeIfAbsent(world.provider.dimensionId, dimensionId -> pollutionType.createPollutionInstance());
     }

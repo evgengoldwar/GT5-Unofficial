@@ -45,7 +45,6 @@ public class PollutionSpreadHandler {
 
             totalSpread += spreadPollutionToNeighbor(
                 world,
-                sourcePos,
                 sourcePollution.get(),
                 neighborPos,
                 storage,
@@ -57,7 +56,7 @@ public class PollutionSpreadHandler {
         }
     }
 
-    private int spreadPollutionToNeighbor(World world, ChunkCoordIntPair sourcePos, int sourcePollution,
+    private int spreadPollutionToNeighbor(World world, int sourcePollution,
         ChunkCoordIntPair neighborPos, PollutionStorage storage, Set<ChunkCoordIntPair> pollutedChunks) {
 
         PollutionData neighborData = storage.get(world, neighborPos);

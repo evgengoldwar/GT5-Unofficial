@@ -14,55 +14,62 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 public class PollutionType {
 
     // region Variables
-    // Abstract variables
+    // Base variables
     private final String name;
+    private final int operationCycle;
+
+    // Spread
     private final int spreadThreshold;
-    private final int cycleLen;
     private final float naturalDecayRate;
+
+    // Effect
     private final List<Potion> potionList;
+    private final int pollutionEffectThreshold;
 
     // DamageBLock variables
-    private final int pollutionDamageStart;
-    private final int maxAttempts;
-    private final int vegetationAttemptsDivisor;
-    private final List<BlockDamageManager> blockDamageManager;
-    private final List<Block> listBlockDestroy;
+    private final int pollutionDamageThreshold;
+    private final int maxAttemptsBlockReplace;
+    private final int pollutionThresholdPerAttempt;
+    private final List<BlockDamageManager> blockDamageManagerList;
+    private final List<Block> blockDestroyList;
 
     // BiomeChange variables
     private final BiomeGenBase biome;
     private final int biomeChangeThreshold;
 
     private final PollutionStorage storage;
-    private final Int2ObjectOpenHashMap<AbstractPollution> dimensionWisePollution = new Int2ObjectOpenHashMap<>(16);
+    private final Int2ObjectOpenHashMap<Pollution> dimensionWisePollution = new Int2ObjectOpenHashMap<>(16);
     // endregion
 
     // region Constructors
     // spotless:off
     public PollutionType(String name,
                          int spreadThreshold,
-                         int cycleLen,
+                         int operationCycle,
                          float naturalDecayRate,
                          List<Potion> potionList,
-                         int pollutionDamageStart,
-                         int maxAttempts,
-                         int vegetationAttemptsDivisor,
-                         List<BlockDamageManager> blockDamageManager,
-                         List<Block> listBlockDestroy,
+                         int pollutionDamageThreshold,
+                         int maxAttemptsBlockReplace,
+                         int pollutionThresholdPerAttempt,
+                         List<BlockDamageManager> blockDamageManagerList,
+                         List<Block> blockDestroyList,
                          BiomeGenBase biome,
-                         int biomeChangeThreshold) {
+                         int biomeChangeThreshold,
+                         int pollutionEffectThreshold) {
 
         this.name = name;
         this.spreadThreshold = spreadThreshold;
-        this.cycleLen = cycleLen;
+        this.operationCycle = operationCycle;
         this.naturalDecayRate = naturalDecayRate;
         this.potionList = potionList;
-        this.pollutionDamageStart = pollutionDamageStart;
-        this.maxAttempts = maxAttempts;
-        this.vegetationAttemptsDivisor = vegetationAttemptsDivisor;
-        this.blockDamageManager = blockDamageManager;
-        this.listBlockDestroy = listBlockDestroy;
+        this.pollutionDamageThreshold = pollutionDamageThreshold;
+        this.maxAttemptsBlockReplace = maxAttemptsBlockReplace;
+        this.pollutionThresholdPerAttempt = pollutionThresholdPerAttempt;
+        this.blockDamageManagerList = blockDamageManagerList;
+        this.blockDestroyList = blockDestroyList;
         this.biome = biome;
         this.biomeChangeThreshold = biomeChangeThreshold;
+        this.pollutionEffectThreshold = pollutionEffectThreshold;
 
         this.storage = new PollutionStorage(this);
     }
@@ -78,15 +85,15 @@ public class PollutionType {
         return spreadThreshold;
     }
 
-    public int getCycleLen() {
-        return cycleLen;
+    public int getOperationCycle() {
+        return operationCycle;
     }
 
     public float getNaturalDecayRate() {
         return naturalDecayRate;
     }
 
-    public Int2ObjectOpenHashMap<AbstractPollution> getDimensionWisePollution() {
+    public Int2ObjectOpenHashMap<Pollution> getDimensionWisePollution() {
         return dimensionWisePollution;
     }
 
@@ -98,24 +105,24 @@ public class PollutionType {
         return Collections.unmodifiableList(potionList);
     }
 
-    public int getPollutionDamageStart() {
-        return pollutionDamageStart;
+    public int getPollutionDamageThreshold() {
+        return pollutionDamageThreshold;
     }
 
-    public int getMaxAttempts() {
-        return maxAttempts;
+    public int getMaxAttemptsBlockReplace() {
+        return maxAttemptsBlockReplace;
     }
 
-    public int getVegetationAttemptsDivisor() {
-        return vegetationAttemptsDivisor;
+    public int getPollutionThresholdPerAttempt() {
+        return pollutionThresholdPerAttempt;
     }
 
-    public List<BlockDamageManager> getBlockDamageManager() {
-        return blockDamageManager;
+    public List<BlockDamageManager> getBlockDamageManagerList() {
+        return blockDamageManagerList;
     }
 
-    public List<Block> getListBlockDestroy() {
-        return listBlockDestroy;
+    public List<Block> getBlockDestroyList() {
+        return blockDestroyList;
     }
 
     public BiomeGenBase getBiome() {
@@ -126,10 +133,14 @@ public class PollutionType {
         return biomeChangeThreshold;
     }
 
+    public int getPollutionEffectThreshold() {
+        return pollutionEffectThreshold;
+    }
+
     // endregion
 
     // region Others methods
-    public AbstractPollution createPollutionInstance() {
+    public Pollution createPollutionInstance() {
         return new Pollution(this);
     }
     // endregion

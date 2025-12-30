@@ -14,13 +14,14 @@ import it.unimi.dsi.fastutil.Pair;
 public class BlockDamageManager {
 
     private final Block masterBlock;
-    private final List<Pair<Block, Integer>> listBlocks;
+    private final List<Pair<Block, Integer>> blocksList;
 
-    private BlockDamageManager(Block masterBlock, List<Pair<Block, Integer>> listBlocks) {
+    private BlockDamageManager(Block masterBlock, List<Pair<Block, Integer>> blocksList) {
         this.masterBlock = masterBlock;
-        this.listBlocks = listBlocks;
+        this.blocksList = blocksList;
     }
 
+    @SafeVarargs
     public static BlockDamageManager setBlocksReplace(Block masterBlock, Pair<Block, Integer>... pairBlocks) {
         return new BlockDamageManager(masterBlock, Arrays.asList(pairBlocks));
     }
@@ -39,31 +40,31 @@ public class BlockDamageManager {
     }
 
     public Block getRandomBLock() {
-        if (listBlocks == null || listBlocks.isEmpty()) {
+        if (blocksList == null || blocksList.isEmpty()) {
             return Blocks.air;
         }
 
-        int totalWeight = listBlocks.stream()
+        int totalWeight = blocksList.stream()
             .mapToInt(Pair::second)
             .sum();
 
         if (totalWeight <= 0) {
-            int index = XSTR_INSTANCE.nextInt(listBlocks.size());
-            return listBlocks.get(index)
+            int index = XSTR_INSTANCE.nextInt(blocksList.size());
+            return blocksList.get(index)
                 .first();
         }
 
         int randomValue = XSTR_INSTANCE.nextInt(totalWeight);
         int currentWeight = 0;
 
-        for (Pair<Block, Integer> pair : listBlocks) {
+        for (Pair<Block, Integer> pair : blocksList) {
             currentWeight += pair.second();
 
             if (randomValue < currentWeight) {
                 return pair.first();
             }
         }
-        return listBlocks.get(listBlocks.size() - 1)
+        return blocksList.get(blocksList.size() - 1)
             .first();
     }
 }

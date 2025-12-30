@@ -39,6 +39,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.Nullable;
 
+import gregtech.common.pollutionRework.Api.Pollution;
 import net.minecraft.block.Block;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -164,8 +165,6 @@ import gregtech.common.misc.GlobalEnergyWorldSavedData;
 import gregtech.common.misc.GlobalMetricsCoverDatabase;
 import gregtech.common.misc.WirelessChargerManager;
 import gregtech.common.misc.spaceprojects.SpaceProjectWorldSavedData;
-import gregtech.common.pollution.Pollution;
-import gregtech.common.pollutionRework.Api.AbstractPollution;
 import gregtech.common.pollutionRework.Api.PollutionRegistry;
 import gregtech.common.pollutionRework.Api.PollutionType;
 import gregtech.common.pollutionRework.PollutionTypes;
@@ -692,7 +691,7 @@ public class GTProxy implements IFuelHandler {
     public final ReentrantLock TICK_LOCK = new ReentrantLock();
 
     private final ConcurrentMap<UUID, GTClientPreference> mClientPrefernces = new ConcurrentHashMap<>();
-    public final Int2ObjectOpenHashMap<Pollution> dimensionWisePollution = new Int2ObjectOpenHashMap<>(16);
+    public final Int2ObjectOpenHashMap<gregtech.common.pollution.Pollution> dimensionWisePollution = new Int2ObjectOpenHashMap<>(16);
     /** A fast lookup for players. */
     private Map<UUID, EntityPlayerMP> PLAYERS_BY_UUID;
     private Map<String, UUID> UUID_BY_NAME;
@@ -2056,16 +2055,16 @@ public class GTProxy implements IFuelHandler {
         for (PollutionType pollutionType : POLLUTION_TYPE_LIST) {
             if (aEvent.world.isRemote) return;
 
-            int tickId = (int) (worldTime % pollutionType.getCycleLen());
+            int tickId = (int) (worldTime % pollutionType.getOperationCycle());
 
             if (aEvent.world.provider.dimensionId != 0) continue;
 
             if (aEvent.phase == TickEvent.Phase.START) {
-                AbstractPollution.onWorldTick(aEvent.world, pollutionType, tickId);
+                Pollution.onWorldTick(aEvent.world, pollutionType, tickId);
             }
         }
 
-        Pollution.onWorldTick(aEvent);
+        gregtech.common.pollution.Pollution.onWorldTick(aEvent);
     }
 
     private final List<PollutionType> POLLUTION_TYPE_LIST = new ArrayList<>();
@@ -2482,7 +2481,7 @@ public class GTProxy implements IFuelHandler {
     @SubscribeEvent
     public void handleChunkLoadEvent(ChunkDataEvent.Load event) {
         UndergroundOil.migrate(event);
-        Pollution.migrate(event);
+        gregtech.common.pollution.Pollution.migrate(event);
     }
 
     @SubscribeEvent
