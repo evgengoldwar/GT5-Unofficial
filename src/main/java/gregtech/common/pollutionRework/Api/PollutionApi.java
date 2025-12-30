@@ -52,10 +52,6 @@ public class PollutionApi {
         return getStorage(type).get(world, chunkX, chunkZ)
             .getPollutionAmount();
     }
-
-    public static PollutionStorage getStorage(PollutionType type) {
-        return type.getStorage();
-    }
     // endregion
 
     // region Other Methods
@@ -72,6 +68,10 @@ public class PollutionApi {
                 cleanroom.pollute();
             }
         }
+    }
+
+    public static PollutionStorage getStorage(PollutionType type) {
+        return type.getStorage();
     }
     // endregion
 }

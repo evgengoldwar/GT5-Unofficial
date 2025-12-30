@@ -19,11 +19,11 @@ public class PollutionBlockDamager {
     private final int pollutionDamageStart;
     private final int maxAttempts;
     private final int vegetationAttemptsDivisor;
-    private final BlockDamageManager blockDamageManager;
+    private final List<BlockDamageManager> blockDamageManager;
     private final List<Block> listBlocksDestroy;
 
     public PollutionBlockDamager(int pollutionDamageStart, int maxAttempts, int vegetationAttemptsDivisor,
-        BlockDamageManager blockDamageManager, List<Block> listBlocksDestroy) {
+        List<BlockDamageManager> blockDamageManager, List<Block> listBlocksDestroy) {
         this.pollutionDamageStart = pollutionDamageStart;
         this.maxAttempts = maxAttempts;
         this.vegetationAttemptsDivisor = vegetationAttemptsDivisor;
@@ -84,8 +84,14 @@ public class PollutionBlockDamager {
     private void replaceBlock(World world, int x, int y, int z, Block tBlock) {
         if (blockDamageManager == null) return;
 
-        Block masterBlock = blockDamageManager.getMasterBlock();
-        Block randomBlock = blockDamageManager.getRandomBLock();
+        int randomIndex = XSTR_INSTANCE.nextInt(blockDamageManager.size());
+
+        BlockDamageManager bdm = blockDamageManager.get(randomIndex);
+
+        if (bdm == null) return;
+
+        Block masterBlock = bdm.getMasterBlock();
+        Block randomBlock = bdm.getRandomBLock();
 
         if (tBlock == randomBlock) return;
 

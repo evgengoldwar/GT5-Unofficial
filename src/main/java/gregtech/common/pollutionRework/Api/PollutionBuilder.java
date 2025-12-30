@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.block.Block;
 import net.minecraft.potion.Potion;
 import net.minecraft.world.biome.BiomeGenBase;
@@ -19,14 +20,17 @@ public class PollutionBuilder {
     private int spreadThreshold = 100_000;
     private float naturalDecayRate = 0.9945f;
     private final List<Potion> potionList = new ArrayList<>();
-    private BiomeGenBase biome;
 
     // DamageBLock variables
     private int pollutionDamageStart = 100_000;
     private int maxAttempts = 100;
     private int vegetationAttemptsDivisor = 25_000;
-    private BlockDamageManager blockDamageManager;
-    private List<Block> listBlockDestroy = new ArrayList<>();
+    private final List<BlockDamageManager> blockDamageManager = new ArrayList<>();
+    private final List<Block> listBlockDestroy = new ArrayList<>();
+
+    // Biome Variables
+    private BiomeGenBase biome;
+    private int biomeChangeThreshold;
     // endregion
 
     // region Constructor
@@ -75,8 +79,14 @@ public class PollutionBuilder {
         return this;
     }
 
-    public PollutionBuilder setBlocksDamage(BlockDamageManager blockDamageManager) {
-        this.blockDamageManager = blockDamageManager;
+    public PollutionBuilder setBlocksReplace(Block masterBlock, Block... replaceBlock) {
+        this.blockDamageManager.add(BlockDamageManager.setBlocksReplace(masterBlock, replaceBlock));
+        return this;
+    }
+
+    @SafeVarargs
+    public final PollutionBuilder setBlocksReplace(Block masterBlock, Pair<Block, Integer>... replaceBlock) {
+        this.blockDamageManager.add(BlockDamageManager.setBlocksReplace(masterBlock, replaceBlock));
         return this;
     }
 
@@ -85,8 +95,9 @@ public class PollutionBuilder {
         return this;
     }
 
-    public PollutionBuilder setBiomeChanger(BiomeGenBase biome) {
+    public PollutionBuilder setBiomeChanger(BiomeGenBase biome, int biomeChangeThreshold) {
         this.biome = biome;
+        this.biomeChangeThreshold = biomeChangeThreshold;
         return this;
     }
 
@@ -102,7 +113,8 @@ public class PollutionBuilder {
             vegetationAttemptsDivisor,
             blockDamageManager,
             listBlockDestroy,
-            biome);
+            biome,
+            biomeChangeThreshold);
     }
     // endregion
 }

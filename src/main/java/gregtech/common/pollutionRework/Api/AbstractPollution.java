@@ -27,7 +27,7 @@ public abstract class AbstractPollution {
     // endregion
 
     // region Class Variables
-    private List<ChunkCoordIntPair> pollutionList = new ArrayList<>();
+    private final List<ChunkCoordIntPair> pollutionList = new ArrayList<>();
     private final Set<ChunkCoordIntPair> pollutedChunks = new HashSet<>();
     private int operationsPerTick = 0;
     protected final PollutionType pollutionType;
@@ -85,7 +85,7 @@ public abstract class AbstractPollution {
         }
 
         if (!pollutionInstance.pollutionList.isEmpty()) {
-            pollutionInstance.tickPollutionInWorld(world, tickId);
+            pollutionInstance.tickPollutionInWorld(world);
         }
     }
 
@@ -95,7 +95,7 @@ public abstract class AbstractPollution {
         operationsPerTick = pollutionList.isEmpty() ? 0 : Math.min(50, pollutionList.size());
     }
 
-    private void tickPollutionInWorld(World world, int tickId) {
+    private void tickPollutionInWorld(World world) {
         for (int i = 0; i < operationsPerTick && !pollutionList.isEmpty(); i++) {
             ChunkCoordIntPair chunkPos = pollutionList.remove(pollutionList.size() - 1);
 
@@ -119,14 +119,13 @@ public abstract class AbstractPollution {
                 pollutedChunks);
             EFFECT_HANDLER.applyPotionEffects(world, chunkPos, pollution.get());
             DAMAGE_HANDLER.applyDamageEffects(world, chunkPos, pollution.get());
-            PollutionBiomeChangeHandler.changeChunkBiome(world, chunkPos, pollutionType.getBiome());
             setChunkPollution(world, chunkPos, pollution.get(), storage);
             PollutionNetworkHandler.sendPollutionUpdate(world, chunkPos, pollution.get(), pollutionType);
         }
-    }
 
-    private float applyNaturalDecay(int pollution) {
-        return getNaturalDecayRate() * pollution;
+        if (pollution.get() > pollutionType.getBiomeChangeThreshold()) {
+            PollutionBiomeChangeHandler.changeChunkBiome(world, chunkPos, pollutionType.getBiome());
+        }
     }
     // endregion
 }

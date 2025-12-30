@@ -3,6 +3,7 @@ package gregtech.common.pollutionRework.Utils;
 import static gregtech.api.objects.XSTR.XSTR_INSTANCE;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.block.Block;
@@ -20,8 +21,8 @@ public class BlockDamageManager {
         this.listBlocks = listBlocks;
     }
 
-    public static BlockDamageManager setBlocksReplace(Block masterBlock, List<Pair<Block, Integer>> listBlocks) {
-        return new BlockDamageManager(masterBlock, listBlocks);
+    public static BlockDamageManager setBlocksReplace(Block masterBlock, Pair<Block, Integer>... pairBlocks) {
+        return new BlockDamageManager(masterBlock, Arrays.asList(pairBlocks));
     }
 
     public static BlockDamageManager setBlocksReplace(Block masterBlock, Block... blocks) {

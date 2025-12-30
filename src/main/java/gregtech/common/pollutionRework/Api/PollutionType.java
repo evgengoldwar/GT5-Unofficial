@@ -25,11 +25,12 @@ public class PollutionType {
     private final int pollutionDamageStart;
     private final int maxAttempts;
     private final int vegetationAttemptsDivisor;
-    private final BlockDamageManager blockDamageManager;
+    private final List<BlockDamageManager> blockDamageManager;
     private final List<Block> listBlockDestroy;
 
     // BiomeChange variables
     private final BiomeGenBase biome;
+    private final int biomeChangeThreshold;
 
     private final PollutionStorage storage;
     private final Int2ObjectOpenHashMap<AbstractPollution> dimensionWisePollution = new Int2ObjectOpenHashMap<>(16);
@@ -45,9 +46,10 @@ public class PollutionType {
                          int pollutionDamageStart,
                          int maxAttempts,
                          int vegetationAttemptsDivisor,
-                         BlockDamageManager blockDamageManager,
+                         List<BlockDamageManager> blockDamageManager,
                          List<Block> listBlockDestroy,
-                         BiomeGenBase biome) {
+                         BiomeGenBase biome,
+                         int biomeChangeThreshold) {
 
         this.name = name;
         this.spreadThreshold = spreadThreshold;
@@ -60,6 +62,7 @@ public class PollutionType {
         this.blockDamageManager = blockDamageManager;
         this.listBlockDestroy = listBlockDestroy;
         this.biome = biome;
+        this.biomeChangeThreshold = biomeChangeThreshold;
 
         this.storage = new PollutionStorage(this);
     }
@@ -107,7 +110,7 @@ public class PollutionType {
         return vegetationAttemptsDivisor;
     }
 
-    public BlockDamageManager getBlockDamageManager() {
+    public List<BlockDamageManager> getBlockDamageManager() {
         return blockDamageManager;
     }
 
@@ -117,6 +120,10 @@ public class PollutionType {
 
     public BiomeGenBase getBiome() {
         return biome;
+    }
+
+    public int getBiomeChangeThreshold() {
+        return biomeChangeThreshold;
     }
 
     // endregion
