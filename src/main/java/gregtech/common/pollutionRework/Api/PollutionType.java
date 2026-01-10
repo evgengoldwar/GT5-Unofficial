@@ -15,30 +15,30 @@ public class PollutionType {
 
     // region Variables
     // Base variables
-    private final String name;
-    private final int operationCycle;
+    public final String name;
+    public final int operationCycle;
 
     // Spread
-    private final int spreadThreshold;
-    private final float naturalDecayRate;
+    public final int spreadThreshold;
+    public final float naturalDecayRate;
 
     // Effect
-    private final List<Potion> potionList;
-    private final int pollutionEffectThreshold;
+    public final List<Potion> potionList;
+    public final int pollutionEffectThreshold;
 
     // DamageBLock variables
-    private final int pollutionDamageThreshold;
-    private final int maxAttemptsBlockReplace;
-    private final int pollutionThresholdPerAttempt;
-    private final List<BlockDamageManager> blockDamageManagerList;
-    private final List<Block> blockDestroyList;
+    public final int pollutionDamageThreshold;
+    public final int maxAttemptsBlockReplace;
+    public final int pollutionThresholdPerAttempt;
+    public final List<BlockDamageManager> blockDamageManagerList;
+    public final List<Block> blockDestroyList;
 
     // BiomeChange variables
-    private final BiomeGenBase biome;
-    private final int biomeChangeThreshold;
+    public final BiomeGenBase biome;
+    public final int biomeChangeThreshold;
 
-    private final PollutionStorage storage;
-    private final Int2ObjectOpenHashMap<Pollution> dimensionWisePollution = new Int2ObjectOpenHashMap<>(16);
+    public final PollutionStorage storage;
+    public final Int2ObjectOpenHashMap<Pollution> dimensionWisePollution = new Int2ObjectOpenHashMap<>(16);
     // endregion
 
     // region Constructors
@@ -70,73 +70,9 @@ public class PollutionType {
         this.biome = biome;
         this.biomeChangeThreshold = biomeChangeThreshold;
         this.pollutionEffectThreshold = pollutionEffectThreshold;
-
         this.storage = new PollutionStorage(this);
     }
     // spotless:on
-    // endregion
-
-    // region Getters
-    public String getName() {
-        return name;
-    }
-
-    public int getSpreadThreshold() {
-        return spreadThreshold;
-    }
-
-    public int getOperationCycle() {
-        return operationCycle;
-    }
-
-    public float getNaturalDecayRate() {
-        return naturalDecayRate;
-    }
-
-    public Int2ObjectOpenHashMap<Pollution> getDimensionWisePollution() {
-        return dimensionWisePollution;
-    }
-
-    public PollutionStorage getStorage() {
-        return storage;
-    }
-
-    public List<Potion> getPotionList() {
-        return Collections.unmodifiableList(potionList);
-    }
-
-    public int getPollutionDamageThreshold() {
-        return pollutionDamageThreshold;
-    }
-
-    public int getMaxAttemptsBlockReplace() {
-        return maxAttemptsBlockReplace;
-    }
-
-    public int getPollutionThresholdPerAttempt() {
-        return pollutionThresholdPerAttempt;
-    }
-
-    public List<BlockDamageManager> getBlockDamageManagerList() {
-        return blockDamageManagerList;
-    }
-
-    public List<Block> getBlockDestroyList() {
-        return blockDestroyList;
-    }
-
-    public BiomeGenBase getBiome() {
-        return biome;
-    }
-
-    public int getBiomeChangeThreshold() {
-        return biomeChangeThreshold;
-    }
-
-    public int getPollutionEffectThreshold() {
-        return pollutionEffectThreshold;
-    }
-
     // endregion
 
     // region Others methods

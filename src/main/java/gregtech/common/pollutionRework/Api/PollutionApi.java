@@ -71,7 +71,7 @@ public class PollutionApi {
     }
 
     public static PollutionStorage getStorage(PollutionType type) {
-        return type.getStorage();
+        return type.storage;
     }
     // endregion
 }

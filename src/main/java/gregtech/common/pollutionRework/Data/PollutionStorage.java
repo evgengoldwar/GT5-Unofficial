@@ -22,12 +22,12 @@ public class PollutionStorage extends GTChunkAssociatedData<PollutionData> {
     private final PollutionType pollutionType;
 
     public PollutionStorage(PollutionType pollutionType) {
-        super("Pollution_" + pollutionType.getName(), PollutionData.class, 64, (byte) 0, false);
+        super("Pollution_" + pollutionType.name, PollutionData.class, 64, (byte) 0, false);
         this.pollutionType = pollutionType;
     }
 
     @Override
-    protected void writeElement(DataOutput output, PollutionData element, World world, int chunkX, int chunkZ)
+    protected void writeElement(DataOutput output, PollutionData element, @NotNull World world, int chunkX, int chunkZ)
         throws IOException {
         output.writeInt(element.getPollutionAmount());
     }
@@ -81,7 +81,7 @@ public class PollutionStorage extends GTChunkAssociatedData<PollutionData> {
     }
 
     private Pollution getPollutionManager(World world) {
-        return pollutionType.getDimensionWisePollution()
+        return pollutionType.dimensionWisePollution
             .computeIfAbsent(world.provider.dimensionId, dimensionId -> pollutionType.createPollutionInstance());
     }
 }

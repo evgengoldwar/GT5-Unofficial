@@ -7,7 +7,7 @@ public class PollutionRegistry {
     private static final Map<String, PollutionType> REGISTERED_POLLUTIONS = new HashMap<>();
 
     public static void registerPollution(PollutionType pollutionType) {
-        REGISTERED_POLLUTIONS.put(pollutionType.getName(), pollutionType);
+        REGISTERED_POLLUTIONS.put(pollutionType.name, pollutionType);
     }
 
     public static PollutionType getPollutionType(String name) {

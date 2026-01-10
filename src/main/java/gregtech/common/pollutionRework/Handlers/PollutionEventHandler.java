@@ -17,8 +17,6 @@ import gregtech.common.pollutionRework.Data.PollutionStorage;
 
 public class PollutionEventHandler {
 
-    private static final List<PollutionType> POLLUTIONS = PollutionRegistry.getAllPollutions();
-
     @SubscribeEvent
     public void onChunkWatch(ChunkWatchEvent.Watch event) {
         if (event.player == null || event.player.worldObj == null) return;
@@ -26,7 +24,7 @@ public class PollutionEventHandler {
         World world = event.player.worldObj;
         ChunkCoordIntPair chunkCord = new ChunkCoordIntPair(event.chunk.chunkXPos, event.chunk.chunkZPos);
 
-        for (PollutionType type : POLLUTIONS) {
+        for (PollutionType type : PollutionRegistry.getAllPollutions()) {
             PollutionStorage storage = PollutionApi.getStorage(type);
             int pollution = 0;
 
@@ -44,7 +42,7 @@ public class PollutionEventHandler {
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
         if (!event.world.isRemote) {
-            for (PollutionType type : POLLUTIONS) {
+            for (PollutionType type : PollutionRegistry.getAllPollutions()) {
                 PollutionApi.getStorage(type)
                     .loadAll(event.world);
             }
@@ -54,8 +52,8 @@ public class PollutionEventHandler {
     @SubscribeEvent
     public void onWorldUnload(WorldEvent.Unload event) {
         if (event.world == null) return;
-        for (PollutionType type : POLLUTIONS) {
-            type.getDimensionWisePollution()
+        for (PollutionType type : PollutionRegistry.getAllPollutions()) {
+            type.dimensionWisePollution
                 .remove(event.world.provider.dimensionId);
         }
     }

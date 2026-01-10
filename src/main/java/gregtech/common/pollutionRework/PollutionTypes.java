@@ -23,7 +23,7 @@ public class PollutionTypes {
         .setOperationCycle(200)
         .setNaturalDecayRate(0.9945f)
         .setPotion(Potion.blindness)
-        .setMaxAttemptsBlockReplace(500)
+        .setMaxAttemptsBlockReplace(10)
         .setPollutionDamageThreshold(100)
         .setPollutionThresholdPerAttempt(1)
         .setBlocksDestroy(Blocks.sand, Blocks.grass)

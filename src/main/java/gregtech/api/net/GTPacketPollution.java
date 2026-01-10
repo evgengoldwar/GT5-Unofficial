@@ -29,7 +29,7 @@ public class GTPacketPollution extends GTPacket {
 
     @Override
     public void encode(ByteBuf aOut) {
-        byte[] nameBytes = type.getName()
+        byte[] nameBytes = type.name
             .getBytes();
         aOut.writeInt(nameBytes.length);
         aOut.writeBytes(nameBytes);

@@ -40,6 +40,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nullable;
 
 import gregtech.common.pollutionRework.Api.Pollution;
+import gregtech.common.pollutionRework.Handlers.PollutionEventHandler;
 import net.minecraft.block.Block;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -1046,6 +1047,7 @@ public class GTProxy implements IFuelHandler {
         MinecraftForge.EVENT_BUS.register(new GTWorldgenerator.OregenPatternSavedData(""));
         MinecraftForge.EVENT_BUS.register(new GlobalMetricsCoverDatabase());
         MinecraftForge.EVENT_BUS.register(new PowerGogglesWorldSavedData());
+        MinecraftForge.EVENT_BUS.register(new PollutionEventHandler());
         FMLCommonHandler.instance()
             .bus()
             .register(new GTWorldgenerator.OregenPatternSavedData(""));
@@ -2055,7 +2057,7 @@ public class GTProxy implements IFuelHandler {
         for (PollutionType pollutionType : POLLUTION_TYPE_LIST) {
             if (aEvent.world.isRemote) return;
 
-            int tickId = (int) (worldTime % pollutionType.getOperationCycle());
+            int tickId = (int) (worldTime % pollutionType.operationCycle);
 
             if (aEvent.world.provider.dimensionId != 0) continue;
 

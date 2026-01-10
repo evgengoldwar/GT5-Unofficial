@@ -2584,7 +2584,7 @@ public class GTUtility {
         for (PollutionType type : PollutionRegistry.getAllPollutions()) {
             if (PollutionApi.hasPollution(currentChunk, type)) {
                 tList.add(
-                    "Pollution " + type.getName()
+                    "Pollution " + type.name
                         + " in Chunk: "
                         + EnumChatFormatting.RED
                         + formatNumbers(PollutionApi.getPollution(currentChunk, type))
@@ -2593,7 +2593,7 @@ public class GTUtility {
             } else {
                 tList.add(
                     EnumChatFormatting.GREEN + "No Pollution "
-                        + type.getName()
+                        + type.name
                         + " in Chunk! HAYO!"
                         + EnumChatFormatting.RESET);
             }

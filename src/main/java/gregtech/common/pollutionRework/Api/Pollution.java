@@ -18,28 +18,24 @@ public class Pollution {
     private final Set<ChunkCoordIntPair> pollutedChunks = new HashSet<>();
     private int operationsPerTick = 0;
     protected final PollutionType pollutionType;
-    private final PollutionSpreadHandler SPREAD_HANDLER = new PollutionSpreadHandler();
-    private static final PollutionEventHandler EVENT_HANDLER = new PollutionEventHandler();
+    private final PollutionSpreadHandler SPREAD_HANDLER;
     private final PollutionEffectHandler EFFECT_HANDLER;
     private final PollutionBlockDamager DAMAGE_HANDLER;
-    // endregion
-
-    // region Static
-    static {
-        MinecraftForge.EVENT_BUS.register(EVENT_HANDLER);
-    }
+    private final PollutionStorage POLLUTION_STORAGE;
     // endregion
 
     // region Constructors
     public Pollution(PollutionType pollutionType) {
         this.pollutionType = pollutionType;
 
-        EFFECT_HANDLER = new PollutionEffectHandler(pollutionType.getPotionList());
+        SPREAD_HANDLER = new PollutionSpreadHandler();
+        EFFECT_HANDLER = new PollutionEffectHandler(pollutionType.potionList);
         DAMAGE_HANDLER = new PollutionBlockDamager(
-            pollutionType.getMaxAttemptsBlockReplace(),
-            pollutionType.getPollutionThresholdPerAttempt(),
-            pollutionType.getBlockDamageManagerList(),
-            pollutionType.getBlockDestroyList());
+            pollutionType.maxAttemptsBlockReplace,
+            pollutionType.pollutionThresholdPerAttempt,
+            pollutionType.blockDamageManagerList,
+            pollutionType.blockDestroyList);
+        POLLUTION_STORAGE = PollutionApi.getStorage(pollutionType);
     }
     // endregion
 
@@ -50,8 +46,8 @@ public class Pollution {
     // endregion
 
     // region Setters
-    private void setChunkPollution(World world, ChunkCoordIntPair cord, int pollution, PollutionStorage storage) {
-        storage.mutatePollution(
+    private void setChunkPollution(World world, ChunkCoordIntPair cord, int pollution) {
+        POLLUTION_STORAGE.mutatePollution(
                 world,
                 cord.chunkXPos,
                 cord.chunkZPos,
@@ -62,8 +58,7 @@ public class Pollution {
 
     // region Methods
     public static void onWorldTick(World world, PollutionType pollutionType, int tickId) {
-
-        final Pollution pollutionInstance = pollutionType.getDimensionWisePollution()
+        final Pollution pollutionInstance = pollutionType.dimensionWisePollution
             .computeIfAbsent(world.provider.dimensionId, i -> pollutionType.createPollutionInstance());
 
         if (tickId == 0) {
@@ -92,32 +87,31 @@ public class Pollution {
     }
 
     private void processChunkPollution(World world, ChunkCoordIntPair chunkPos) {
-        PollutionStorage storage = PollutionApi.getStorage(pollutionType);
-        PollutionData data = storage.get(world, chunkPos);
-        AtomicInteger pollution = new AtomicInteger((int) (pollutionType.getNaturalDecayRate() * data.getPollutionAmount()));
+        PollutionData pollutionData = POLLUTION_STORAGE.get(world, chunkPos);
+        AtomicInteger pollution = new AtomicInteger((int) (pollutionType.naturalDecayRate * pollutionData.getPollutionAmount()));
 
-        if (pollution.get() > pollutionType.getSpreadThreshold()) {
+        if (pollution.get() > pollutionType.spreadThreshold) {
             SPREAD_HANDLER.handlePollutionSpread(
                 world,
                 chunkPos,
                 pollution,
-                storage,
+                POLLUTION_STORAGE,
                 pollutedChunks);
         }
 
-        if (pollution.get() > pollutionType.getPollutionDamageThreshold()) {
+        if (pollution.get() > pollutionType.pollutionDamageThreshold) {
             DAMAGE_HANDLER.applyDamageEffects(world, chunkPos, pollution.get());
         }
 
-        if (pollution.get() > pollutionType.getPollutionEffectThreshold()) {
+        if (pollution.get() > pollutionType.pollutionEffectThreshold) {
             EFFECT_HANDLER.applyPotionEffects(world, chunkPos, pollution.get());
         }
 
-        if (pollution.get() > pollutionType.getBiomeChangeThreshold()) {
-            PollutionBiomeChangeHandler.changeChunkBiome(world, chunkPos, pollutionType.getBiome());
+        if (pollution.get() > pollutionType.biomeChangeThreshold) {
+            PollutionBiomeChangeHandler.changeChunkBiome(world, chunkPos, pollutionType.biome);
         }
 
-        setChunkPollution(world, chunkPos, pollution.get(), storage);
+        setChunkPollution(world, chunkPos, pollution.get());
         PollutionNetworkHandler.sendPollutionUpdate(world, chunkPos, pollution.get(), pollutionType);
     }
     // endregion

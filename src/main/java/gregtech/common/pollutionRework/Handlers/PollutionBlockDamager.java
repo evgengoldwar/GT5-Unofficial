@@ -32,6 +32,9 @@ public class PollutionBlockDamager {
         if (!PollutionUtils.checkIsChunkLoaded(chunkPos, world)) return;
 
         final int attempts = Math.min(maxAttemptsBlockReplace, pollution / pollutionThresholdPerAttempt);
+
+        if (attempts <= 0) return;
+
         final int CHUNK_SIZE = 16;
         final int OFFSET = 2;
         final int baseX = chunkPos.chunkXPos << 4;
@@ -51,23 +54,24 @@ public class PollutionBlockDamager {
         final int widthZ = maxZLocal - minZLocal + 1;
 
         for (int i = 0; i < attempts; i++) {
-            final int localX = minXLocal + XSTR_INSTANCE.nextInt(widthX);
-            final int localZ = minZLocal + XSTR_INSTANCE.nextInt(widthZ);
+            int localX = minXLocal + XSTR_INSTANCE.nextInt(widthX);
+            int localZ = minZLocal + XSTR_INSTANCE.nextInt(widthZ);
 
             int x = baseX + localX;
             int z = baseZ + localZ;
 
             int y = 60 + (-i + XSTR_INSTANCE.nextInt(i * 2 + 1));
+
+            if (world.isAirBlock(x, y, z)) continue;
+
             Block tBlock = world.getBlock(x, y, z);
 
-            if (tBlock == Blocks.air) continue;
-
-            final GameRegistry.UniqueIdentifier identifier = GameRegistry.findUniqueIdentifierFor(tBlock);
+//            final GameRegistry.UniqueIdentifier identifier = GameRegistry.findUniqueIdentifierFor(tBlock);
 
             if (XSTR_INSTANCE.nextBoolean()) {
                 replaceBlock(world, x, y, z, tBlock);
             } else {
-                destroyBlock(world, x, y, z, tBlock, world.getBlockMetadata(x, y, z));
+                destroyBlock(world, x, y, z, tBlock);
             }
         }
     }
@@ -91,11 +95,11 @@ public class PollutionBlockDamager {
         }
     }
 
-    private void destroyBlock(World world, int x, int y, int z, Block tBlock, int tMeta) {
+    private void destroyBlock(World world, int x, int y, int z, Block tBlock) {
         for (Block block : blocksDestroyList) {
             if (tBlock == block) {
-                tBlock.dropBlockAsItem(world, x, y, z, tMeta, 0);
                 world.setBlockToAir(x, y, z);
+                return;
             }
         }
     }
