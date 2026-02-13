@@ -382,8 +382,14 @@ public abstract class TTMultiblockBase extends MTEExtendedPowerMultiBlockBase<TT
         info.add(
             StatCollector.translateToLocalFormatted(
                 "tt.infodata.multi.computation",
-                EnumChatFormatting.GREEN + formatNumber(eAvailableData) + EnumChatFormatting.RESET,
-                EnumChatFormatting.YELLOW + formatNumber(eRequiredData) + EnumChatFormatting.RESET));
+                formatNumber(eAvailableData),
+                formatNumber(eRequiredData)));
+
+        info.add(StatCollector.translateToLocalFormatted("tt.keyphrase.Amp_Rating", formatNumber(eMaxAmpereFlow)));
+
+        info.add(StatCollector.translateToLocalFormatted("tt.keyword.PowerPass", ePowerPass));
+
+        info.add(StatCollector.translateToLocalFormatted("tt.keyword.SafeVoid", eSafeVoid));
 
         return info.toArray(new String[0]);
     }
